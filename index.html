@@ -1,0 +1,2471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class Report Generator - Month Wise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<style>
+:root{
+  --primary:#4f3cc9; --primary-dark:#372a94; --primary-light:#7d6cf0;
+  --teal:#0ea5a5; --accent:#f5a524; --rose:#e2436b; --green:#1a9c6b;
+  --ink:#241c4d; --ink-dark:#150f36; --paper:#f3f2fb; --card:#ffffff;
+  --line:#e7e4f7; --muted:#716c94; --gold:#f5a524; --red:#e2436b;
+}
+*{box-sizing:border-box}
+body{margin:0}
+.app{font-family:'Inter',Arial,sans-serif;
+  background:
+    radial-gradient(circle at 12% -10%, #ece7fd 0%, transparent 42%),
+    radial-gradient(circle at 100% 0%, #e2f6f3 0%, transparent 38%),
+    var(--paper);
+  color:var(--ink);min-height:100vh}
+.topbar{background:linear-gradient(120deg,var(--primary) 0%,#6a4fe0 55%,#8a3fd6 100%);color:#fff;padding:20px 26px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 4px 20px rgba(79,60,201,.28)}
+.topbar h1{font-family:'Sora',sans-serif;font-size:20px;margin:0;font-weight:700;letter-spacing:.2px;display:flex;align-items:center;gap:12px}
+.topbar h1 .logo-mark{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.topbar h1 small{display:block;font-size:11px;color:#e6dfff;font-family:'Inter',sans-serif;font-weight:500;letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+nav{display:flex;gap:6px;background:#fff;border-bottom:1px solid var(--line);padding:10px 26px;box-shadow:0 2px 10px rgba(36,28,77,.04);flex-wrap:wrap}
+nav button{font-family:'Inter',sans-serif;font-weight:600;font-size:14.5px;padding:9px 16px;border:none;border-radius:20px;background:none;cursor:pointer;color:var(--muted);transition:all .15s ease}
+nav button:hover{background:#f1eefc;color:var(--primary)}
+nav button.active{color:#fff;background:linear-gradient(120deg,var(--primary),var(--primary-light));box-shadow:0 3px 10px rgba(79,60,201,.35)}
+.nav-dropdown{position:relative}
+.nav-dropdown-menu{display:none;position:absolute;top:100%;left:0;padding-top:6px;z-index:20}
+.nav-dropdown-menu-inner{background:#fff;border:1px solid var(--line);border-radius:12px;min-width:170px;box-shadow:0 14px 30px rgba(36,28,77,.16);padding:6px}
+.nav-dropdown:hover .nav-dropdown-menu{display:block}
+.nav-dropdown-menu button{display:block;width:100%;text-align:left;padding:9px 14px;border-radius:8px;color:var(--muted);font-weight:500}
+.nav-dropdown-menu button:hover{background:#f1eefc;color:var(--primary)}
+.nav-dropdown-menu button.active{color:#fff;background:linear-gradient(120deg,var(--primary),var(--primary-light));font-weight:600}
+main{padding:26px;max-width:1000px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin-bottom:20px;box-shadow:0 2px 16px rgba(36,28,77,.05)}
+.card details{border-radius:14px}
+.card summary.section-summary{list-style:none;cursor:pointer;padding:20px 26px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card summary.section-summary::-webkit-details-marker{display:none}
+.card summary.section-summary::after{content:'';width:9px;height:9px;border-right:2px solid var(--primary);border-bottom:2px solid var(--primary);transform:rotate(-45deg);transition:transform .15s ease;flex-shrink:0}
+.card details[open] summary.section-summary::after{transform:rotate(45deg)}
+.card details[open] summary.section-summary{border-bottom:2px solid var(--line)}
+.card .section-body{padding:18px 26px 22px}
+.card summary.section-summary h2::after{display:none}
+.card h2{font-family:'Sora',sans-serif;font-size:17.5px;margin:0 0 16px;color:var(--ink);border-bottom:2px solid var(--line);padding-bottom:10px;font-weight:700;position:relative}
+.card h2::after{content:'';position:absolute;left:0;bottom:-2px;width:44px;height:2px;background:linear-gradient(120deg,var(--primary),var(--teal))}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+input,select{font-family:'Inter',sans-serif;font-size:15.5px;padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;background:#fbfaff;color:var(--ink)}
+input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,60,201,.12)}
+button.btn{font-family:'Inter',sans-serif;font-weight:600;font-size:14.5px;padding:9px 18px;border-radius:9px;border:none;background:linear-gradient(120deg,var(--primary),var(--primary-light));color:#fff;cursor:pointer;box-shadow:0 3px 10px rgba(79,60,201,.25);transition:transform .1s ease,box-shadow .15s ease}
+button.btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(79,60,201,.32)}
+button.btn:active{transform:translateY(0)}
+button.btn.secondary{background:#fff;color:var(--primary);border:1.5px solid var(--line);box-shadow:none}
+button.btn.secondary:hover{border-color:var(--primary);background:#f6f4ff}
+button.btn.danger{background:#fff;color:var(--rose);border:1.5px solid #f6d4dd;box-shadow:none}
+button.btn.danger:hover{background:#fef1f4;border-color:var(--rose)}
+button.btn.ghost{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.45);color:#fff;box-shadow:none}
+button.btn.ghost:hover{background:rgba(255,255,255,.26)}
+table{width:100%;border-collapse:collapse;font-family:'Inter',sans-serif;font-size:14.5px}
+th{text-align:left;font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--primary);background:#f6f4ff;padding:10px}
+td{padding:9px 10px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:none}
+table tr:hover td{background:#faf9ff}
+.pct{color:var(--muted);font-size:13px}
+.empty{color:var(--muted);font-family:'Inter',sans-serif;font-size:14.5px;padding:16px 0;text-align:center}
+.beh-chip{display:inline-flex;align-items:center;margin:2px 4px 2px 0;padding:2px 4px;border:1px solid var(--border,#ddd);border-radius:6px}
+.star-picker{display:inline-flex;gap:1px}
+.star-pick{cursor:pointer;font-size:30px;color:#d3d3d3;line-height:1;transition:transform .1s}
+.star-pick.filled{color:#f5b301}
+.star-pick:hover{transform:scale(1.15)}
+.star-readonly{color:#f5b301;font-size:15px;letter-spacing:1px}
+.grade{display:inline-block;font-family:'Inter',sans-serif;font-weight:700;padding:3px 11px;border-radius:20px;font-size:12.5px}
+.grade-A\+,.grade-A{background:linear-gradient(120deg,#d6f5e8,#c3f0dc);color:#0d7a4f}
+.grade-B{background:linear-gradient(120deg,#fdecc8,#fbe3ad);color:#a5690a}
+.grade-C,.grade-D{background:linear-gradient(120deg,#fbdbe3,#f8c9d5);color:#b8264a}
+.tag-absent{display:inline-block;font-family:'Inter',sans-serif;font-weight:700;padding:3px 11px;border-radius:20px;font-size:12.5px;background:linear-gradient(120deg,#fbdbe3,#f8c9d5);color:#b8264a}
+.rankbadge{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;padding:0 6px;border-radius:50%;font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px;background:#efecfb;color:var(--primary)}
+.rankbadge.rank-1{background:linear-gradient(135deg,#ffd76a,#f5a524);color:#5a3a00;box-shadow:0 2px 8px rgba(245,165,36,.4)}
+.rankbadge.rank-2{background:linear-gradient(135deg,#e6eaf0,#b9c0cc);color:#3c4351;box-shadow:0 2px 8px rgba(150,160,180,.35)}
+.rankbadge.rank-3{background:linear-gradient(135deg,#eabd94,#c8814a);color:#4a2a0c;box-shadow:0 2px 8px rgba(200,129,74,.35)}
+.star-card{border:2px solid var(--accent)!important;box-shadow:0 12px 34px rgba(245,165,36,.28)!important}
+.star-badge{display:inline-block;font-family:'Sora',sans-serif;font-weight:800;font-size:12px;letter-spacing:.4px;color:#5a3a00;background:linear-gradient(135deg,#ffe9b8,#ffd76a);padding:5px 14px;border-radius:20px}
+.star-spotlight{position:relative;overflow:hidden;border-radius:22px;margin-bottom:20px;background:linear-gradient(135deg,#241c4d 0%,#3d2d84 48%,#7a3fc2 100%);box-shadow:0 20px 46px rgba(36,28,77,.38)}
+.star-spotlight::before{content:'';position:absolute;top:-70px;right:-50px;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,rgba(245,165,36,.38),transparent 70%);pointer-events:none}
+.star-spotlight::after{content:'';position:absolute;bottom:-90px;left:-50px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(14,165,165,.28),transparent 70%);pointer-events:none}
+.star-ribbon{position:relative;display:inline-block;font-family:'Sora',sans-serif;font-weight:800;font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:#5a3a00;background:linear-gradient(135deg,#ffe9b8,#f5a524);padding:7px 18px;border-radius:0 0 12px 0;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.star-spotlight-inner{position:relative;padding:6px 30px 22px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.star-orb{flex-shrink:0;width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,#ffe9b8,#f5a524);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:600;font-size:30px;color:#5a3a00;box-shadow:0 0 0 5px rgba(255,255,255,.14),0 12px 26px rgba(245,165,36,.4)}
+.star-info{flex:1;min-width:200px}
+.star-info .star-eyebrow{font-family:'Inter',sans-serif;font-size:11.5px;letter-spacing:1.3px;text-transform:uppercase;color:#cdc2fb;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.star-info .star-name{font-family:'Fraunces',serif;font-size:25px;color:#fff;font-weight:600;margin:0}
+.star-info .star-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:#cdc2fb;margin-top:5px;line-height:1.5;max-width:420px}
+.star-rings{position:relative;display:flex;gap:16px;flex-wrap:wrap;padding:2px 30px 26px}
+.star-ring{display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px 16px 13px;flex:1 1 130px}
+.star-ring .ring{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.star-ring .ring span{background:#2b2260;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:13.5px;color:#fff}
+.star-ring .ring-label{font-family:'Inter',sans-serif;font-size:11px;color:#cdc2fb;text-transform:uppercase;letter-spacing:.6px;font-weight:600;text-align:center}
+.reportcard{background:#fff;border-radius:16px;overflow:hidden;padding:0;margin:0 auto 22px;width:100%;max-width:720px;box-shadow:0 10px 32px rgba(36,28,77,.14);border:1px solid var(--line)}
+.rc-head{background:linear-gradient(120deg,var(--primary) 0%,#6a4fe0 60%,#0ea5a5 135%);color:#fff;padding:22px 28px}
+.rc-head-top{display:flex;align-items:center;gap:14px;text-align:left}
+.rc-head-top .rc-logo{flex-shrink:0}
+.rc-head .school{font-family:'Fraunces',serif;font-size:22px;letter-spacing:.3px;margin:0;font-weight:600}
+.rc-head .school-sub{font-family:'Inter',sans-serif;font-size:12px;color:#e6dfff;margin:4px 0 0;line-height:1.5}
+.rc-head h2{font-family:'Fraunces',serif;margin:14px 0 0;font-size:17.5px;letter-spacing:1px;font-weight:600;text-transform:uppercase;border-top:1px solid rgba(255,255,255,.25);padding-top:10px;text-align:center}
+.rc-head p{margin:3px 0 0;font-family:'Inter',sans-serif;font-size:12.5px;color:#e6dfff;text-transform:uppercase;letter-spacing:1px}
+.rc-body{padding:22px 28px}
+.rc-student{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px dashed var(--line);padding-bottom:12px;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+.rc-student .name{font-family:'Fraunces',serif;font-size:23px;color:var(--ink);font-weight:600}
+.rc-student .roll{font-family:'Inter',sans-serif;font-size:13.5px;color:var(--muted)}
+.rc-section-title{font-family:'Inter',sans-serif;font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:1px;color:#fff;background:linear-gradient(120deg,var(--primary),var(--teal));display:inline-block;padding:4px 12px;border-radius:20px;margin-bottom:12px}
+.rc-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.rc-charts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:8px}
+.chartbox{position:relative;height:190px}
+.rc-remarks{border-top:1px solid var(--line);margin-top:16px;padding-top:14px;font-family:'Inter',sans-serif;font-size:13.5px;color:var(--muted)}
+.rc-remarks textarea{width:100%;min-height:54px;font-family:'Inter',sans-serif;font-size:14.5px;border:1.5px solid var(--line);border-radius:8px;padding:9px;resize:vertical;color:var(--ink)}
+.select-roll{display:flex;gap:10px;align-items:center;margin-bottom:18px;font-family:'Inter',sans-serif;flex-wrap:wrap}
+.printbar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.stat-row{display:flex;gap:12px;font-family:'Inter',sans-serif;font-size:13.5px;margin-bottom:12px;flex-wrap:wrap}
+.stat-row div{background:#f6f4ff;padding:8px 14px;border-radius:9px;border-left:3px solid var(--primary);font-weight:500}
+.stat-row div:nth-child(1){border-left-color:var(--teal);background:#eafaf8}
+.stat-row div:nth-child(2){border-left-color:var(--rose);background:#fdeef1}
+.stat-row div:nth-child(3){border-left-color:var(--primary);background:#f2effc}
+.stat-row div:nth-child(4){border-left-color:var(--accent);background:#fef6e8}
+.stat-row b{color:var(--ink)}
+.ut-info-strip{display:flex;flex-wrap:wrap;gap:10px;margin:2px 0 18px}
+.ut-info-item{flex:1 1 130px;background:#f6f4ff;border-left:3px solid var(--primary);border-radius:8px;padding:8px 12px}
+.ut-info-label{display:block;font-family:'Inter',sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600;margin-bottom:2px}
+.ut-info-value{display:block;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;color:var(--ink)}
+.ut-syllabus{margin-bottom:18px}
+.ut-syllabus-title{display:inline-block;font-family:'Inter',sans-serif;font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--primary);background:#f1eefc;padding:4px 12px;border-radius:20px;margin-bottom:8px}
+.ut-table th .sub-max{display:block;font-weight:500;font-size:10.5px;opacity:.75;text-transform:none;letter-spacing:0;margin-top:1px}
+.ut-table tbody tr:nth-child(even) td{background:#faf9ff}
+.ut-table th{white-space:nowrap}
+.ut-table td:nth-child(3){text-align:left;font-weight:600}
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
+  .topbar,nav,.printbar,.select-roll,.no-print{display:none!important}
+  main{padding:0;max-width:none}
+  .reportcard{border:none;border-radius:0;box-shadow:none;max-width:100%}
+  .reportcard + .reportcard{page-break-before:always}
+  body{background:#fff}
+  .app{background:#fff}
+  thead{display:table-header-group}
+  tbody tr{page-break-inside:avoid;break-inside:avoid}
+}
+.table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.table-wrap table{min-width:480px}
+@media (max-width:780px){
+  main{padding:16px}
+  .card{padding:16px}
+  .topbar{padding:14px 16px}
+  .topbar h1{font-size:17px}
+  .topbar h1 .logo-mark{width:30px;height:30px}
+  nav{padding:8px 10px}
+  nav button{padding:8px 12px;font-size:13.5px}
+  .row{gap:10px}
+  .field{flex:1 1 140px}
+  input,select{width:100%;font-size:15px}
+  table{font-size:13px}
+  th,td{padding:8px 7px}
+  .rc-head{padding:16px 18px}
+  .rc-body{padding:16px 18px}
+  .rc-grid{grid-template-columns:1fr;gap:14px}
+  .rc-charts{grid-template-columns:1fr;gap:14px}
+  .chartbox{height:170px}
+  .rc-student{flex-direction:column;align-items:flex-start;gap:4px}
+  .rc-student .name{font-size:20px}
+  .stat-row{gap:8px}
+  .stat-row div{flex:1 1 auto;padding:7px 10px;font-size:12.5px}
+  .star-spotlight-inner{padding:6px 18px 18px;gap:14px}
+  .star-orb{width:60px;height:60px;font-size:24px}
+  .star-info .star-name{font-size:21px}
+  .star-rings{padding:2px 18px 20px;gap:10px}
+  .star-ring{padding:10px 10px 11px}
+}
+@media (max-width:420px){
+  .topbar h1 span:not(.logo-mark){font-size:15px}
+  .topbar h1 small{font-size:9.5px}
+  .reportcard{border-radius:10px}
+  .rc-head .school{font-size:18px}
+  .rc-head h2{font-size:15px}
+}
+@media (max-width:480px){
+  .row .field{width:100%!important;max-width:none!important}
+  .row .field input,.row .field select{width:100%!important}
+}
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Inter',Arial,sans-serif;
+  background:radial-gradient(circle at 12% -10%, #ece7fd 0%, transparent 42%),radial-gradient(circle at 100% 0%, #e2f6f3 0%, transparent 38%),var(--paper);padding:20px}
+.auth-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:32px 30px;width:100%;max-width:380px;box-shadow:0 10px 32px rgba(36,28,77,.12)}
+.auth-card h1{font-family:'Sora',sans-serif;font-size:19px;margin:0 0 4px;color:var(--ink)}
+.auth-card p.sub{font-size:12.5px;color:var(--muted);margin:0 0 22px}
+.auth-card .field{margin-bottom:14px}
+.auth-card .field label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px}
+.auth-card input{width:100%;padding:10px 12px;font-size:13.5px}
+.auth-card .btn{width:100%;justify-content:center;padding:11px 18px;font-size:13.5px;margin-top:6px}
+.auth-toggle{text-align:center;margin-top:16px;font-size:12.5px;color:var(--muted)}
+.auth-toggle a{color:var(--primary);font-weight:600;cursor:pointer;text-decoration:none}
+.auth-err{background:#fdeef1;color:var(--rose);font-size:12px;padding:9px 12px;border-radius:8px;margin-bottom:14px;display:none}
+.auth-loading{text-align:center;padding:60px 20px;font-family:'Inter',sans-serif;color:var(--muted)}
+.userchip{font-size:11.5px;color:#e6dfff;font-family:'Inter',sans-serif}
+</style>
+</head>
+<body>
+
+<div id="authScreen" class="auth-wrap" style="display:none">
+  <div class="auth-card">
+    <h1 id="authTitle">Login</h1>
+    <p class="sub" id="authSub">Apne account se login karo — data har device par sync rahega.</p>
+    <div class="auth-err" id="authErr"></div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn" id="authSubmitBtn" onclick="submitAuth()">Login</button>
+    <div class="auth-toggle" id="authToggle">Naya account banana hai? <a onclick="toggleAuthMode()">Sign up</a></div>
+  </div>
+</div>
+
+<div id="authLoading" class="auth-loading" style="display:none">Loading...</div>
+
+<div class="app" id="appRoot" style="display:none">
+  <div class="topbar">
+    <h1><span class="logo-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 3L2 8l10 5 8-4.2V16h1.5V8L12 3z" fill="#fff"/><path d="M6 12.2V16c0 2 2.7 3.6 6 3.6s6-1.6 6-3.6v-3.8l-6 3-6-3z" fill="#fff" fill-opacity=".85"/></svg></span><span>Class Report Generator<small>Marks • Attendance • Report Cards (Month-wise)</small></span></h1>
+    <div style="display:flex;align-items:center;gap:12px" class="no-print">
+      <span class="userchip" id="userChip"></span>
+      <button class="btn ghost" onclick="clearAllData()">Clear All Data</button>
+      <button class="btn ghost" onclick="logoutUser()">Logout</button>
+    </div>
+  </div>
+  <nav id="nav"></nav>
+  <main id="main"></main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAWld69AUJrQriMbXV9kLGgWGwhVvhzhdI",
+  authDomain: "student-report-card-87245.firebaseapp.com",
+  projectId: "student-report-card-87245",
+  storageBucket: "student-report-card-87245.firebasestorage.app",
+  messagingSenderId: "295409541231",
+  appId: "1:295409541231:web:48aed3138f4a76e7846d9a"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+let currentUser = null;
+let authMode = 'login'; // 'login' or 'signup'
+
+let DATA = { students: [], marks: [], attendance: {}, workingDays: {}, dailyAttendance: {}, remarks: {}, subjects: [], behavior: {}, testOrder: [], school: { name:'', address:'', mobile:'', logo:'' } };
+let tab = 'students';
+let selectedRoll = null;
+let editingMarkIndex = null;
+let editingStudentRoll = null;
+let studentListFilterStandard = '';
+let studentListFilterStream = '';
+let bulkMarksFilterStandard = '';
+let bulkMarksFilterStream = '';
+let markFilterStandard = '';
+let markFilterStream = '';
+let takeAttDate = '';
+let takeAttStandard = '';
+let takeAttStream = '';
+let takeAttStatus = 'working';
+let printListStandard = '';
+let printListStream = '';
+let reportFilterStandard = '';
+let reportFilterStream = '';
+let printAllFilterStandard = '';
+let printAllFilterStream = '';
+let starMonthFilterStandard = '';
+let starMonthFilterStream = '';
+let profileSubTab = 'monthwise';
+let profileFilterStandard = '';
+let profileFilterStream = '';
+let profileSelectedRoll = null;
+let charts = {};
+
+const MONTHS = ['June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March', 'April', 'May'];
+let currentMonth = 'June'; 
+let attFilterStandard = '';
+let attFilterStream = '';
+let behFilterStandard = '';
+let behFilterStream = '';
+let behRatingInput = {};
+
+async function loadData() {
+    try {
+        if(currentUser){
+            const doc = await db.collection('users').doc(currentUser.uid).get();
+            if(doc.exists && doc.data().crgData) DATA = JSON.parse(doc.data().crgData);
+        }
+    } catch(e){ console.error(e); alert('Data load karne me error aayi: '+e.message); }
+    if(!DATA.students) DATA.students=[];
+    if(!DATA.marks) DATA.marks=[];
+    if(!DATA.attendance) DATA.attendance={};
+    if(!DATA.workingDays) DATA.workingDays={};
+    if(!DATA.dailyAttendance) DATA.dailyAttendance={};
+    if(!DATA.remarks) DATA.remarks={};
+    if(!DATA.subjects) DATA.subjects=[];
+    if(!DATA.behavior) DATA.behavior={};
+    if(!DATA.testOrder) DATA.testOrder=[];
+    if(!DATA.school) DATA.school = { name:'', address:'', mobile:'', logo:'' };
+    if(DATA.school.logo === undefined) DATA.school.logo = '';
+
+    // --- Migration: give every student a stable unique internal id, separate from roll no ---
+    // (Purani entries jinke paas id nahi hai, unko id = unka roll no mil jata he, taaki purana
+    // marks/attendance/remarks data (jo roll se linked tha) waisa hi kaam karta rahe.)
+    let maxId = 0;
+    DATA.students.forEach(s=>{ if(s.id && s.id>maxId) maxId = s.id; });
+    DATA.students.forEach(s=>{
+        if(s.id===undefined || s.id===null){
+            maxId = Math.max(maxId, Number(s.roll)||0) + 1;
+            s.id = (Number(s.roll)||0) ? Number(s.roll) : maxId;
+        }
+    });
+
+    if(DATA.students.length && !selectedRoll) selectedRoll=DATA.students[0].id;
+
+    // --- Migration for Old Data to support Months ---
+    DATA.marks.forEach(m => { if(!m.month) m.month = 'June'; });
+    
+    for(let r in DATA.attendance){
+        // Agar purana structure hai {present: X, absent: Y}, usko January me shift kar do
+        if(DATA.attendance[r].present !== undefined){
+            DATA.attendance[r] = { 'June': {present: DATA.attendance[r].present, absent: DATA.attendance[r].absent} };
+        }
+    }
+    for(let r in DATA.remarks){
+        // Agar string hai purani, usko January me dalo
+        if(typeof DATA.remarks[r] === 'string'){
+            DATA.remarks[r] = { 'June': DATA.remarks[r] };
+        }
+    }
+}
+
+async function saveData() {
+    if(!currentUser) return;
+    try{
+        await db.collection('users').doc(currentUser.uid).set({
+            crgData: JSON.stringify(DATA),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    }catch(e){
+        console.error(e);
+        alert('Data save karne me error aayi: '+e.message+'\n\nAgar logo image bahut badi hai to use chota karke try karo.');
+    }
+}
+
+function subjectAvg(roll, subject, month){
+  const rows = DATA.marks.filter(m=>m.roll===roll && m.subject===subject && m.month===month);
+  const max = rows.reduce((s,r)=>s+Number(r.max||0),0);
+  const obt = rows.reduce((s,r)=>s+Number(r.obtained||0),0);
+  return max>0 ? obt/max : 0;
+}
+function overallAvg(roll, month){
+  const rows = DATA.marks.filter(m=>m.roll===roll && m.month===month);
+  const max = rows.reduce((s,r)=>s+Number(r.max||0),0);
+  const obt = rows.reduce((s,r)=>s+Number(r.obtained||0),0);
+  return max>0 ? obt/max : 0;
+}
+function gradeFor(pct){
+  if(pct>=0.9) return 'A+';
+  if(pct>=0.75) return 'A';
+  if(pct>=0.6) return 'B';
+  if(pct>=0.45) return 'C';
+  return 'D';
+}
+function subjectsFor(roll, month){
+  return [...new Set(DATA.marks.filter(m=>m.roll===roll && m.month===month).map(m=>m.subject))];
+}
+function studentName(id){
+  const s = DATA.students.find(s=>s.id===id);
+  return s ? s.name : 'Unknown';
+}
+function studentRoll(id){
+  const s = DATA.students.find(s=>s.id===id);
+  return s ? s.roll : id;
+}
+// Performance Trend: student ka Marks%, Attendance% aur Behavior% (5-star scale ko 100 me convert karke)
+// har month ke liye nikalta he - jis month me data nahi he wahan null rehta he, taaki chart me sirf actual
+// data-wale months connect hon, beech me galat 0% dip na dikhe.
+function trendDataFor(roll){
+  const marksSeries = [], attSeries = [], behSeries = [];
+  MONTHS.forEach(month=>{
+    const hasMarks = DATA.marks.some(m=>m.roll===roll && m.month===month && !m.absent);
+    marksSeries.push(hasMarks ? Math.round(overallAvg(roll, month)*100) : null);
+    const att = attFor(roll, month);
+    attSeries.push(att.total>0 ? Math.round(att.pct*100) : null);
+    const beh = behAvg(roll, month);
+    behSeries.push(beh!==null ? Math.round((beh/5)*100) : null);
+  });
+  return { months: MONTHS, marksSeries, attSeries, behSeries };
+}
+function hasAnyTrendData(roll){
+  const t = trendDataFor(roll);
+  return t.marksSeries.some(v=>v!==null) || t.attSeries.some(v=>v!==null) || t.behSeries.some(v=>v!==null);
+}
+function workingDaysFor(month){
+  return Number((DATA.workingDays && DATA.workingDays[month]) || 0);
+}
+function setWorkingDays(month, value){
+  if(!DATA.workingDays) DATA.workingDays = {};
+  DATA.workingDays[month] = Number(value)||0;
+  saveData();
+  render();
+}
+function attFor(roll, month){
+  if(!DATA.attendance[roll]) DATA.attendance[roll] = {};
+  const a = DATA.attendance[roll][month] || {present:0, absent:0};
+  const present = Number(a.present||0);
+  const workingDays = workingDaysFor(month);
+  let total, absent;
+  if(workingDays>0){
+    // Total working days set for the month - absent auto-calculates
+    total = workingDays;
+    absent = Math.max(total - present, 0);
+  } else {
+    // Fallback for old data / months where working days hasn't been set yet
+    absent = Number(a.absent||0);
+    total = present + absent;
+  }
+  return {present, absent, total, pct: total>0 ? present/total : 0};
+}
+
+// Behavior Rating: har month me student ke liye multiple teachers apni rating (1-5) daal sakte hain.
+// Sabki ratings ek list me store hoti hain, aur unka average final Behavior Score banta he.
+function behEntriesFor(roll, month){
+  if(!DATA.behavior[roll]) DATA.behavior[roll] = {};
+  if(!DATA.behavior[roll][month]) DATA.behavior[roll][month] = [];
+  return DATA.behavior[roll][month];
+}
+function behAvg(roll, month){
+  const entries = (DATA.behavior[roll] && DATA.behavior[roll][month]) || [];
+  if(entries.length===0) return null;
+  const sum = entries.reduce((s,e)=>s+Number(e.rating||0),0);
+  return sum/entries.length;
+}
+function addBehaviorRating(roll, month, ratingVal){
+  const rating = Number(ratingVal);
+  if(!rating || rating<1 || rating>5){ alert('Rating 1 se 5 ke beech honi chahiye.'); return; }
+  const entries = behEntriesFor(roll, month);
+  entries.push({ id: Date.now()+Math.floor(Math.random()*1000), rating });
+  saveData();
+  render();
+}
+function updateBehaviorRating(roll, month, entryId, ratingVal){
+  const rating = Number(ratingVal);
+  if(!rating || rating<1 || rating>5){ alert('Rating 1 se 5 ke beech honi chahiye.'); render(); return; }
+  const entries = behEntriesFor(roll, month);
+  const entry = entries.find(e=>e.id===entryId);
+  if(entry){ entry.rating = rating; saveData(); }
+  render();
+}
+function deleteBehaviorRating(roll, month, entryId){
+  const entries = behEntriesFor(roll, month);
+  const idx = entries.findIndex(e=>e.id===entryId);
+  if(idx>-1){ entries.splice(idx,1); saveData(); render(); }
+}
+// Clickable 1-5 star picker. onClickJs is the JS call string invoked with the clicked star number appended,
+// e.g. "addBehaviorRating(5, 'January',". filledUpto controls how many stars show as gold by default.
+function starPickerHtml(onClickJs, filledUpto){
+  let html = '<span class="star-picker">';
+  for(let i=1;i<=5;i++){
+    html += `<span class="star-pick ${i<=filledUpto?'filled':''}" onclick="${onClickJs}${i})">${i<=filledUpto?'★':'☆'}</span>`;
+  }
+  html += '</span>';
+  return html;
+}
+// Read-only star display for averages (rounds to nearest whole star), with the precise number alongside.
+function starsDisplayHtml(value){
+  if(value===null || value===undefined) return '<span class="pct">-</span>';
+  const rounded = Math.round(value);
+  let stars = '';
+  for(let i=1;i<=5;i++){ stars += i<=rounded ? '★' : '☆'; }
+  return `<span class="star-readonly">${stars}</span> <span class="pct">(${value.toFixed(1)}/5)</span>`;
+}
+
+function renderNav(){
+  const subOpts = [['students','Student Details'],['marks','Single Marks'],['bulkmarks','Bulk Marks']];
+  const studentsBtn = `
+    <div class="nav-dropdown">
+      <button class="${tab==='students'?'active':''}" onclick="setTab('students')">Students</button>
+      <div class="nav-dropdown-menu"><div class="nav-dropdown-menu-inner">
+        ${subOpts.map(([id,label])=>
+          `<button class="${tab==='students'&&studentsSubTab===id?'active':''}" onclick="setStudentsSubTab('${id}')">${label}</button>`).join('')}
+      </div></div>
+    </div>`;
+  const attOpts = [['takeattendance','Enter Daily'],['attendance','Enter Monthly']];
+  const attendanceBtn = `
+    <div class="nav-dropdown">
+      <button class="${tab==='attendancehub'?'active':''}" onclick="setTab('attendancehub')">Attendance</button>
+      <div class="nav-dropdown-menu"><div class="nav-dropdown-menu-inner">
+        ${attOpts.map(([id,label])=>
+          `<button class="${tab==='attendancehub'&&attendanceSubTab===id?'active':''}" onclick="setAttendanceSubTab('${id}')">${label}</button>`).join('')}
+      </div></div>
+    </div>`;
+  const profileOpts = [['monthwise','Month Wise'],['subjectwise','Subject Wise'],['unittestwise','Unit Test Wise']];
+  const profileBtn = `
+    <div class="nav-dropdown">
+      <button class="${tab==='studentprofile'?'active':''}" onclick="setTab('studentprofile')">Student Profile</button>
+      <div class="nav-dropdown-menu"><div class="nav-dropdown-menu-inner">
+        ${profileOpts.map(([id,label])=>
+          `<button class="${tab==='studentprofile'&&profileSubTab===id?'active':''}" onclick="setProfileSubTab('${id}')">${label}</button>`).join('')}
+      </div></div>
+    </div>`;
+  const printOpts = [['printtab','Student Details'],['report','Student Wise'],['printall','All Students'],['unittest','Unit Test Wise'],['starofmonth','Star of the Month']];
+  const printBtn = `
+    <div class="nav-dropdown">
+      <button class="${(tab==='report'||tab==='printall'||tab==='unittest'||tab==='starofmonth'||tab==='printtab')?'active':''}" onclick="setTab('printtab')">Print Report</button>
+      <div class="nav-dropdown-menu"><div class="nav-dropdown-menu-inner">
+        ${printOpts.map(([id,label])=>
+          `<button class="${tab===id?'active':''}" onclick="setTab('${id}')">${label}</button>`).join('')}
+      </div></div>
+    </div>`;
+  const otherTabs = [['behavior','Behavior'],['admin','Admin']];
+  document.getElementById('nav').innerHTML = studentsBtn + attendanceBtn + profileBtn + printBtn + otherTabs.map(([id,label])=>
+    `<button class="${tab===id?'active':''}" onclick="setTab('${id}')">${label}</button>`).join('');
+}
+function setTab(id){ tab = id; render(); }
+function setStudentsSubTab(id){ tab = 'students'; studentsSubTab = id; render(); }
+function setAttendanceSubTab(id){ tab = 'attendancehub'; attendanceSubTab = id; render(); }
+function setProfileSubTab(id){ tab = 'studentprofile'; profileSubTab = id; render(); }
+
+let studentsSubTab = 'students';
+function studentsHubView(){
+  return studentsSubTab==='students' ? studentsView()
+    : studentsSubTab==='marks' ? marksView()
+    : bulkMarksView();
+}
+
+let attendanceSubTab = 'takeattendance';
+function attendanceHubView(){
+  return attendanceSubTab==='takeattendance' ? takeAttendanceView()
+    : attendanceView();
+}
+
+function clearAllData(){
+  if(!confirm('Pakka? Sare students, marks, attendance aur remarks permanently delete ho jayenge. Ye undo nahi ho sakta.')) return;
+  DATA = { students: [], marks: [], attendance: {}, workingDays: {}, dailyAttendance: {}, remarks: {}, subjects: [], school: { name:'', address:'', mobile:'', logo:'' } };
+  selectedRoll = null;
+  saveData();
+  tab = 'students';
+  render();
+}
+
+function render(){
+  renderNav();
+  const main = document.getElementById('main');
+  if(tab==='admin') main.innerHTML = adminView();
+  else if(tab==='printtab') main.innerHTML = printTabView();
+  else if(tab==='students') main.innerHTML = studentsHubView();
+  else if(tab==='attendancehub') main.innerHTML = attendanceHubView();
+  else if(tab==='studentprofile') main.innerHTML = studentProfileHubView();
+  else if(tab==='report') main.innerHTML = reportView();
+  else if(tab==='printall') main.innerHTML = printAllView();
+  else if(tab==='unittest') main.innerHTML = unitTestView();
+  else if(tab==='starofmonth') main.innerHTML = starOfMonthView();
+  else if(tab==='behavior') main.innerHTML = behaviorView();
+  setTimeout(()=>{
+    if(tab==='report'){ drawReportCharts(selectedRoll,'', currentMonth); if(selectedRoll!==null) drawTrendChart(selectedRoll); }
+    if(tab==='printall') drawAllCharts(currentMonth);
+    if(tab==='starofmonth'){ const star = computeStarOfMonth(currentMonth, starMonthFilterStandard, starMonthFilterStream); if(star) drawReportCharts(star.roll, '-star', currentMonth); }
+    if(tab==='studentprofile' && profileSelectedRoll!==null){
+      if(profileSubTab==='monthwise') drawProfileMonthChart(profileSelectedRoll);
+      else if(profileSubTab==='subjectwise') drawProfileSubjectChart(profileSelectedRoll);
+    }
+  }, 30);
+}
+
+let adminSection = 'schooldetails';
+
+function adminView(){
+  const sections = [['schooldetails','School Details']];
+  return `
+  <div class="card no-print" style="padding:14px 18px">
+    ${sections.map(([id,label])=>`<button class="btn ${adminSection===id?'':'secondary'}" style="margin-right:8px" onclick="adminSection='${id}';render()">${label}</button>`).join('')}
+  </div>
+  ${adminSection==='schooldetails' ? schoolDetailsView() : ''}`;
+}
+
+function schoolDetailsView(){
+  const s = DATA.school || { name:'', address:'', mobile:'', logo:'' };
+  return `
+  <div class="card" style="max-width:640px">
+    <h2>School Details</h2>
+    <div class="row" style="align-items:center;gap:20px;margin-bottom:20px">
+      <div style="width:96px;height:96px;border:1.5px dashed var(--primary-light);border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f6f4ff">
+        ${s.logo ? `<img id="logo-preview" src="${s.logo}" style="width:100%;height:100%;object-fit:contain">` : `<span id="logo-preview" class="pct" style="text-align:center;padding:4px">No logo</span>`}
+      </div>
+      <div class="field">
+        <label>School logo</label>
+        <input type="file" accept="image/*" id="sc-logo" onchange="handleLogoUpload(this)">
+        ${s.logo ? `<button class="btn secondary" style="margin-top:6px;width:fit-content" onclick="removeLogo()">Remove logo</button>` : ''}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field" style="flex:1;min-width:260px">
+        <label>School name</label>
+        <input id="sc-name" type="text" placeholder="e.g. Nutan Bharti Vidyalaya" value="${s.name||''}">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field" style="flex:1;min-width:260px">
+        <label>Address</label>
+        <input id="sc-address" type="text" placeholder="e.g. Bapunagar, Ahmedabad" value="${s.address||''}">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field" style="width:220px">
+        <label>Phone number</label>
+        <input id="sc-mobile" type="text" placeholder="e.g. 9737737454" value="${s.mobile||''}">
+      </div>
+    </div>
+    <div class="row" style="margin-top:6px">
+      <button class="btn" onclick="saveSchoolDetails()">Save details</button>
+    </div>
+    <div class="pct no-print">Ye logo aur details har report card ke top pe automatically print hongi.</div>
+  </div>`;
+}
+
+function handleLogoUpload(input){
+  const file = input.files && input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    if(!DATA.school) DATA.school = { name:'', address:'', mobile:'', logo:'' };
+    DATA.school.logo = e.target.result;
+    saveData();
+    render();
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeLogo(){
+  if(!DATA.school) return;
+  DATA.school.logo = '';
+  saveData();
+  render();
+}
+
+function saveSchoolDetails(){
+  const existingLogo = (DATA.school && DATA.school.logo) || '';
+  DATA.school = {
+    name: document.getElementById('sc-name').value.trim(),
+    address: document.getElementById('sc-address').value.trim(),
+    mobile: document.getElementById('sc-mobile').value.trim(),
+    logo: existingLogo
+  };
+  saveData();
+  render();
+}
+
+
+function studentsView(){
+  const standardOpts = ['','8th','9th','10th','11th','12th'].map(v=>`<option value="${v}">${v||'Select'}</option>`).join('');
+  const streamOpts = ['','Commerce','Science','Arts','Other'].map(v=>`<option value="${v}">${v||'Select'}</option>`).join('');
+
+  // Filter list ke liye - jo standard/stream select kiya hai, sirf wahi students dikhao
+  const filterStandardOpts = ['', ...new Set(DATA.students.map(s=>s.standard).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===studentListFilterStandard?'selected':''}>${v||'All standards'}</option>`).join('');
+  const filterStreamOpts = ['', ...new Set(DATA.students.map(s=>s.stream).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===studentListFilterStream?'selected':''}>${v||'All streams'}</option>`).join('');
+
+  const filteredStudents = DATA.students.filter(s=>
+    (!studentListFilterStandard || s.standard===studentListFilterStandard) &&
+    (!studentListFilterStream || s.stream===studentListFilterStream));
+
+  const rows = filteredStudents.map(s=>`
+    <tr><td>${s.roll}</td><td>${s.name}</td><td>${s.standard||'-'}</td><td>${s.stream||'-'}</td><td>${s.mobile||'-'}</td>
+    <td style="white-space:nowrap"><button class="btn secondary" onclick="editStudent(${s.id})">Edit</button>
+    <button class="btn danger" onclick="removeStudent(${s.id})">Remove</button></td></tr>`).join('');
+  const editing = editingStudentRoll!==null ? DATA.students.find(s=>s.id===editingStudentRoll) : null;
+  return `
+  <div class="card">
+    <h2>${editing ? 'Edit student' : 'Add student'}</h2>
+    <div class="row">
+      <div class="field"><label>Roll no</label><input id="s-roll" type="number" min="1" style="width:90px" value="${editing?editing.roll:''}"></div>
+      <div class="field"><label>Name</label><input id="s-name" type="text" style="width:220px" value="${editing?editing.name:''}"></div>
+      <div class="field"><label>Standard</label><select id="s-standard" style="width:100px">${standardOpts}</select></div>
+      <div class="field"><label>Stream</label><select id="s-stream" style="width:130px">${streamOpts}</select></div>
+      <div class="field"><label>Number</label><input id="s-mobile" type="tel" placeholder="Mobile no." style="width:150px" value="${editing?(editing.mobile||''):''}"></div>
+      <button class="btn" onclick="${editing?'updateStudent()':'addStudent()'}">${editing?'Update student':'Add student'}</button>
+      ${editing ? '<button class="btn secondary" onclick="cancelEditStudent()">Cancel</button>' : ''}
+    </div>
+  </div>
+  <div class="card">
+    <h2>Students (${filteredStudents.length}${filteredStudents.length!==DATA.students.length? ' / '+DATA.students.length : ''})</h2>
+    <div class="row">
+      <div class="field"><label>Filter: Standard</label><select style="width:130px" onchange="studentListFilterStandard=this.value; render()">${filterStandardOpts}</select></div>
+      <div class="field"><label>Filter: Stream</label><select style="width:130px" onchange="studentListFilterStream=this.value; render()">${filterStreamOpts}</select></div>
+    </div>
+    ${filteredStudents.length ? `<div class="table-wrap"><table><tr><th>Roll no</th><th>Name</th><th>Standard</th><th>Stream</th><th>Number</th><th></th></tr>${rows}</table></div>` : `<div class="empty">${DATA.students.length ? 'Is standard/stream me koi student nahi hai.' : 'No students added yet.'}</div>`}
+  </div>`;
+}
+function nextStudentId(){
+  let max = 0;
+  DATA.students.forEach(s=>{ if(s.id>max) max = s.id; });
+  return max+1;
+}
+function addStudent(){
+  const roll = Number(document.getElementById('s-roll').value);
+  const name = document.getElementById('s-name').value.trim();
+  const standard = document.getElementById('s-standard').value;
+  const stream = document.getElementById('s-stream').value;
+  const mobile = document.getElementById('s-mobile').value.trim();
+  if(!roll || !name){ alert('Roll no aur naam dono bharo'); return; }
+  const id = nextStudentId();
+  DATA.students.push({id, roll, name, standard, stream, mobile});
+  saveData(); render();
+}
+function editStudent(id){
+  editingStudentRoll = id;
+  render();
+  const s = DATA.students.find(x=>x.id===id);
+  if(!s) return;
+  document.getElementById('s-standard').value = s.standard || '';
+  document.getElementById('s-stream').value = s.stream || '';
+  document.getElementById('s-mobile').value = s.mobile || '';
+}
+function updateStudent(){
+  const roll = Number(document.getElementById('s-roll').value);
+  const name = document.getElementById('s-name').value.trim();
+  const standard = document.getElementById('s-standard').value;
+  const stream = document.getElementById('s-stream').value;
+  const mobile = document.getElementById('s-mobile').value.trim();
+  if(!roll || !name){ alert('Roll no aur naam dono bharo'); return; }
+  const s = DATA.students.find(x=>x.id===editingStudentRoll);
+  if(s){ s.roll = roll; s.name = name; s.standard = standard; s.stream = stream; s.mobile = mobile; }
+  editingStudentRoll = null;
+  saveData(); render();
+}
+function cancelEditStudent(){ editingStudentRoll = null; render(); }
+function removeStudent(id){
+  DATA.students = DATA.students.filter(s=>s.id!==id);
+  DATA.marks = DATA.marks.filter(m=>m.roll!==id);
+  delete DATA.attendance[id];
+  delete DATA.remarks[id];
+  if(DATA.dailyAttendance){
+    for(const d in DATA.dailyAttendance){
+      if(DATA.dailyAttendance[d].marks) delete DATA.dailyAttendance[d].marks[id];
+    }
+  }
+  if(editingStudentRoll===id) editingStudentRoll = null;
+  saveData(); render();
+}
+
+let openMarksSection = null; // 'subjects' | 'form' | 'list' | null — only one open at a time
+let selectedMarksTest = null; // 'Month||TestName' key for the All Marks filter
+function toggleMarksSection(name){
+  openMarksSection = (openMarksSection===name) ? null : name;
+  render();
+}
+function marksView(){
+  // Standard/Stream select karte hi sirf wahi students dropdown me aayenge
+  const filterStandardOpts = ['', ...new Set(DATA.students.map(s=>s.standard).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===markFilterStandard?'selected':''}>${v||'All standards'}</option>`).join('');
+  const filterStreamOpts = ['', ...new Set(DATA.students.map(s=>s.stream).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===markFilterStream?'selected':''}>${v||'All streams'}</option>`).join('');
+
+  const filteredMarkStudents = DATA.students.filter(s=>
+    (!markFilterStandard || s.standard===markFilterStandard) &&
+    (!markFilterStream || s.stream===markFilterStream));
+
+  const studentOpts = filteredMarkStudents.map(s=>`<option value="${s.id}">${s.roll} - ${s.name}</option>`).join('');
+  const subjectOpts = DATA.subjects.map(sub=>`<option value="${sub}">${sub}</option>`).join('');
+  const monthOpts = MONTHS.map(m=>`<option value="${m}" ${m===currentMonth?'selected':''}>${m}</option>`).join('');
+  
+  const subjectRows = DATA.subjects.map((sub,i)=>`
+    <span style="display:inline-flex;align-items:center;gap:6px;background:#f1eefc;border-radius:14px;padding:4px 6px 4px 12px;margin:0 6px 6px 0;font-family:'Inter',sans-serif;font-size:12px;color:var(--primary);font-weight:500">
+      ${sub} <button class="btn danger" style="padding:2px 8px;font-size:11px;border-radius:10px" onclick="removeSubject(${i})">x</button>
+    </span>`).join('');
+
+  // Unique unit tests (month + test name) to pick from
+  const testKeys = [...new Set(DATA.marks.map(m=>m.month+'||'+m.test))];
+  testKeys.sort((a,b)=>{
+    const [ma,ta] = a.split('||'), [mb,tb] = b.split('||');
+    const mi = MONTHS.indexOf(ma) - MONTHS.indexOf(mb);
+    return mi!==0 ? mi : ta.localeCompare(tb);
+  });
+  if(selectedMarksTest===null || !testKeys.includes(selectedMarksTest)){
+    selectedMarksTest = testKeys.length ? testKeys[testKeys.length-1] : null;
+  }
+  const testOpts = testKeys.map(k=>{
+    const [m,t] = k.split('||');
+    return `<option value="${k}" ${k===selectedMarksTest?'selected':''}>${t} (${m})</option>`;
+  }).join('');
+  const filteredMarks = selectedMarksTest ? DATA.marks.map((m,i)=>({m,i})).filter(({m})=>(m.month+'||'+m.test)===selectedMarksTest) : [];
+
+  const rows = filteredMarks.map(({m,i})=>`
+    <tr><td>${examDateDisplay(m)}</td><td>${studentRoll(m.roll)}</td><td>${studentName(m.roll)}</td><td>${m.subject}</td><td>${m.test}</td><td>${m.chapter||'—'}</td><td>${m.topic||'—'}</td>
+    <td>${m.max}</td><td>${m.absent ? '<span class="tag-absent">AB</span>' : m.obtained}</td>
+    <td class="pct">${m.absent ? '—' : (m.max>0?Math.round(m.obtained/m.max*100):0)+'%'}</td>
+    <td style="white-space:nowrap"><button class="btn secondary" onclick="editMark(${i})">Edit</button>
+    <button class="btn danger" onclick="removeMark(${i})">Remove</button></td></tr>`).join('');
+  
+  const editing = editingMarkIndex!==null ? DATA.marks[editingMarkIndex] : null;
+  const editingAbsent = editing ? !!editing.absent : false;
+  if(editing) openMarksSection = 'form';
+
+  return `
+  <div class="card" style="padding:0">
+    <details ${openMarksSection==='subjects'?'open':''}>
+      <summary class="section-summary" onclick="event.preventDefault(); toggleMarksSection('subjects')"><h2 style="margin:0;border:none;padding:0">Subjects</h2></summary>
+      <div class="section-body">
+        <div class="row">
+          <div class="field"><label>Subject name</label><input id="sub-name" type="text" placeholder="Accountancy" style="width:200px"></div>
+          <button class="btn" onclick="addSubject()">Add subject</button>
+        </div>
+        <div>${DATA.subjects.length ? subjectRows : '<div class="empty">Koi subject add nahi hua — pehle yahan subject add karo.</div>'}</div>
+      </div>
+    </details>
+  </div>
+  <div class="card" style="padding:0">
+    <details ${openMarksSection==='form'?'open':''}>
+      <summary class="section-summary" onclick="event.preventDefault(); toggleMarksSection('form')"><h2 style="margin:0;border:none;padding:0">${editing ? 'Edit marks' : 'Add marks'}</h2></summary>
+      <div class="section-body">
+        ${DATA.students.length===0?'<div class="empty">Pehle Students tab me student add karo.</div>':
+        DATA.subjects.length===0?'<div class="empty">Pehle upar subject add karo.</div>':`
+        <div class="row">
+          <div class="field"><label>Standard</label><select onchange="markFilterStandard=this.value; render()" style="width:100px">${filterStandardOpts}</select></div>
+          <div class="field"><label>Stream</label><select onchange="markFilterStream=this.value; render()" style="width:130px">${filterStreamOpts}</select></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Exam Date</label><input type="date" id="m-examdate" value="${todayISO()}" onchange="currentMonth=monthNameFromDate(this.value)" style="width:150px"></div>
+          <div class="field"><label>Student</label><select id="m-roll">${filteredMarkStudents.length?studentOpts:'<option value="">No student in this filter</option>'}</select></div>
+          <div class="field"><label>Subject</label><select id="m-subject">${subjectOpts}</select></div>
+          <div class="field"><label>Test name</label><input id="m-test" type="text" value="${nextUnitTestName()}" placeholder="Unit Test 1" style="width:120px"></div>
+          <div class="field"><label>Chapter</label><input id="m-chapter" type="text" placeholder="Chapter name" style="width:140px"></div>
+          <div class="field"><label>Topic</label><input id="m-topic" type="text" placeholder="Topic name" style="width:140px"></div>
+          <div class="field"><label>Max marks</label><input id="m-max" type="number" style="width:70px"></div>
+          <div class="field"><label>Marks obtained</label><input id="m-obtained" type="number" style="width:90px" ${editingAbsent?'disabled':''}></div>
+          <div class="field"><label>&nbsp;</label>
+            <label style="display:flex;align-items:center;gap:5px;font-family:Arial,sans-serif;font-size:12px;color:var(--muted);padding:7px 0">
+              <input type="checkbox" id="m-absent" ${editingAbsent?'checked':''} onchange="document.getElementById('m-obtained').disabled=this.checked; if(this.checked) document.getElementById('m-obtained').value=0;"> Absent
+            </label>
+          </div>
+          <button class="btn" onclick="saveMark()">${editing ? 'Update marks' : 'Add marks'}</button>
+          ${editing ? '<button class="btn secondary" onclick="cancelEditMark()">Cancel</button>' : ''}
+        </div>`}
+      </div>
+    </details>
+  </div>
+  <div class="card" style="padding:0">
+    <details ${openMarksSection==='list'?'open':''}>
+      <summary class="section-summary" onclick="event.preventDefault(); toggleMarksSection('list')"><h2 style="margin:0;border:none;padding:0">Unit test marks${filteredMarks.length?' ('+filteredMarks.length+')':''}</h2></summary>
+      <div class="section-body">
+        ${DATA.marks.length===0 ? '<div class="empty">No marks added yet.</div>' : `
+        <div class="row" style="margin-bottom:14px">
+          <div class="field"><label>Select Unit Test</label><select onchange="selectedMarksTest=this.value; render()" style="min-width:220px">${testOpts}</select></div>
+        </div>
+        <div class="table-wrap"><table><tr><th>Exam Date</th><th>Roll</th><th>Name</th><th>Subject</th><th>Test</th><th>Chapter</th><th>Topic</th><th>Max</th><th>Obtained</th><th>%</th><th></th></tr>${rows}</table></div>`}
+      </div>
+    </details>
+  </div>`;
+}
+
+function bulkMarksView(){
+  if(DATA.students.length===0) return '<div class="card"><div class="empty">Pehle students tab me student add karo.</div></div>';
+  if(DATA.subjects.length===0) return '<div class="card"><div class="empty">Pehle Single Marks tab me aake subjects add karo.</div></div>';
+
+  const subjectOpts = DATA.subjects.map(sub=>`<option value="${sub}">${sub}</option>`).join('');
+  const monthOpts = MONTHS.map(m=>`<option value="${m}" ${m===currentMonth?'selected':''}>${m}</option>`).join('');
+
+  // Standard/Stream select karte hi sirf wahi students bulk entry table me aayenge
+  const filterStandardOpts = ['', ...new Set(DATA.students.map(s=>s.standard).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===bulkMarksFilterStandard?'selected':''}>${v||'All standards'}</option>`).join('');
+  const filterStreamOpts = ['', ...new Set(DATA.students.map(s=>s.stream).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===bulkMarksFilterStream?'selected':''}>${v||'All streams'}</option>`).join('');
+
+  const filteredStudents = DATA.students.filter(s=>
+    (!bulkMarksFilterStandard || s.standard===bulkMarksFilterStandard) &&
+    (!bulkMarksFilterStream || s.stream===bulkMarksFilterStream));
+
+  const studentRows = filteredStudents.map(s=>`
+    <tr>
+      <td>${s.roll}</td>
+      <td>${s.name}</td>
+      <td><input type="number" id="bm-obt-${s.id}" placeholder="0" style="width:120px"></td>
+      <td style="text-align:center">
+        <input type="checkbox" id="bm-abs-${s.id}" onchange="const inp=document.getElementById('bm-obt-${s.id}'); inp.disabled=this.checked; if(this.checked) inp.value='';">
+      </td>
+    </tr>`).join('');
+
+  return `
+  <div class="card">
+    <h2>Bulk Marks Entry</h2>
+    <div class="row">
+      <div class="field"><label>Standard</label><select onchange="bulkMarksFilterStandard=this.value; render()" style="width:100px">${filterStandardOpts}</select></div>
+      <div class="field"><label>Stream</label><select onchange="bulkMarksFilterStream=this.value; render()" style="width:130px">${filterStreamOpts}</select></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Exam Date</label><input type="date" id="bm-examdate" value="${todayISO()}" onchange="currentMonth=monthNameFromDate(this.value)" style="width:150px"></div>
+      <div class="field"><label>Subject</label><select id="bm-subject">${subjectOpts}</select></div>
+      <div class="field"><label>Test name</label><input id="bm-test" type="text" value="${nextUnitTestName()}" placeholder="Unit Test 1" style="width:150px"></div>
+      <div class="field"><label>Chapter</label><input id="bm-chapter" type="text" placeholder="Chapter name" style="width:150px"></div>
+      <div class="field"><label>Topic</label><input id="bm-topic" type="text" placeholder="Topic name" style="width:150px"></div>
+      <div class="field"><label>Max marks</label><input id="bm-max" type="number" placeholder="100" style="width:90px"></div>
+    </div>
+    <div style="margin-top:10px; margin-bottom: 20px;">
+        <span style="font-size:12px; color:var(--muted)">Note: Jin students ke marks blank chhodenge, unke marks save nahi honge. "Absent" tick karne par uss student ka marks AB (absent) save hoga. Exam date se hi month automatically decide ho jaata hai. Agar same subject, test aur month (usi exam date wale) pehle se hain, toh wo update ho jayenge.</span>
+    </div>
+    <div class="table-wrap">
+    <table>
+      <tr><th>Roll no</th><th>Name</th><th>Marks Obtained</th><th>Absent</th></tr>
+      ${studentRows}
+    </table>
+    </div>
+    <div style="margin-top:20px;">
+      <button class="btn" onclick="saveBulkMarks()">Save All Marks</button>
+    </div>
+  </div>`;
+}
+
+function saveBulkMarks() {
+  const examDate = document.getElementById('bm-examdate').value;
+  const subject = document.getElementById('bm-subject').value;
+  const test = document.getElementById('bm-test').value.trim();
+  const chapter = document.getElementById('bm-chapter').value.trim();
+  const topic = document.getElementById('bm-topic').value.trim();
+  const max = Number(document.getElementById('bm-max').value);
+
+  if(!subject || !test || !max || !examDate) { alert('Exam Date, Subject, Test name, aur Max marks sabhi fill karna zaroori hai.'); return; }
+
+  const month = monthNameFromDate(examDate);
+  currentMonth = month;
+  recordTestOrder(test);
+
+  let addedCount = 0;
+
+  const filteredStudents = DATA.students.filter(s=>
+    (!bulkMarksFilterStandard || s.standard===bulkMarksFilterStandard) &&
+    (!bulkMarksFilterStream || s.stream===bulkMarksFilterStream));
+
+  filteredStudents.forEach(s => {
+    const inputField = document.getElementById('bm-obt-' + s.id);
+    const absentField = document.getElementById('bm-abs-' + s.id);
+    const isAbsent = absentField && absentField.checked;
+    if(isAbsent || (inputField && inputField.value !== '')) {
+      const obtained = isAbsent ? 0 : Number(inputField.value);
+      
+      // Remove older record for the exact same subject + test + month for this student 
+      DATA.marks = DATA.marks.filter(m => !(m.roll === s.id && m.subject === subject && m.test === test && m.month === month));
+      
+      DATA.marks.push({ roll: s.id, month, examDate, subject, test, chapter, topic, max, obtained, absent: !!isAbsent });
+      addedCount++;
+    }
+  });
+
+  if (addedCount > 0) {
+    saveData();
+    alert(`${addedCount} students ke marks ${formatExamDate(examDate)} (${month}) ke liye successfully save ho gaye!`);
+    DATA.students.forEach(s => {
+      const inputField = document.getElementById('bm-obt-' + s.id);
+      const absentField = document.getElementById('bm-abs-' + s.id);
+      if(inputField) inputField.value = '';
+      if(absentField) absentField.checked = false;
+      if(inputField) inputField.disabled = false;
+    });
+  } else {
+    alert('Koi marks enter nahi kiye gaye the.');
+  }
+}
+
+function addSubject(){
+  const name = document.getElementById('sub-name').value.trim();
+  if(!name){ return; }
+  if(DATA.subjects.includes(name)){ alert('Ye subject already list me hai'); return; }
+  DATA.subjects.push(name);
+  saveData(); render();
+}
+function removeSubject(i){
+  DATA.subjects.splice(i,1);
+  saveData(); render();
+}
+function saveMark(){
+  const examDate = document.getElementById('m-examdate').value;
+  const roll = Number(document.getElementById('m-roll').value);
+  const subject = document.getElementById('m-subject').value;
+  const test = document.getElementById('m-test').value.trim();
+  const chapter = document.getElementById('m-chapter').value.trim();
+  const topic = document.getElementById('m-topic').value.trim();
+  const max = Number(document.getElementById('m-max').value);
+  const absent = document.getElementById('m-absent').checked;
+  const obtained = absent ? 0 : Number(document.getElementById('m-obtained').value);
+  
+  if(!examDate){ alert('Exam date select karo'); return; }
+  if(!subject || !test || !max){ alert('Subject, test naam aur max marks bharo'); return; }
+  
+  const month = monthNameFromDate(examDate);
+  currentMonth = month;
+  recordTestOrder(test);
+  
+  if(editingMarkIndex!==null){
+    DATA.marks[editingMarkIndex] = {roll, month, examDate, subject, test, chapter, topic, max, obtained, absent};
+    editingMarkIndex = null;
+  } else {
+    DATA.marks.push({roll, month, examDate, subject, test, chapter, topic, max, obtained, absent});
+  }
+  selectedMarksTest = month+'||'+test;
+  saveData(); render();
+}
+function editMark(i){
+  editingMarkIndex = i;
+  markFilterStandard = '';
+  markFilterStream = '';
+  render();
+  const m = DATA.marks[i];
+  document.getElementById('m-examdate').value = m.examDate || todayISO();
+  document.getElementById('m-roll').value = m.roll;
+  document.getElementById('m-subject').value = m.subject;
+  document.getElementById('m-test').value = m.test;
+  document.getElementById('m-chapter').value = m.chapter || '';
+  document.getElementById('m-topic').value = m.topic || '';
+  document.getElementById('m-max').value = m.max;
+  document.getElementById('m-obtained').value = m.obtained;
+  document.getElementById('m-absent').checked = !!m.absent;
+  document.getElementById('m-obtained').disabled = !!m.absent;
+}
+function cancelEditMark(){ editingMarkIndex = null; render(); }
+function removeMark(i){ DATA.marks.splice(i,1); if(editingMarkIndex===i) editingMarkIndex=null; saveData(); render(); }
+
+function printTabView(){
+  if(DATA.students.length===0) return '<div class="card"><div class="empty">Pehle students tab me student add karo.</div></div>';
+
+  const filterStandardOpts = ['', ...new Set(DATA.students.map(s=>s.standard).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===printListStandard?'selected':''}>${v||'All standards'}</option>`).join('');
+  const filterStreamOpts = ['', ...new Set(DATA.students.map(s=>s.stream).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===printListStream?'selected':''}>${v||'All streams'}</option>`).join('');
+
+  const filteredStudents = DATA.students.filter(s=>
+    (!printListStandard || s.standard===printListStandard) &&
+    (!printListStream || s.stream===printListStream));
+
+  const rows = filteredStudents.map(s=>`
+    <tr><td>${s.roll}</td><td>${s.name}</td><td>${s.standard||'-'}</td><td>${s.stream||'-'}</td><td>${s.mobile||'-'}</td></tr>`).join('');
+
+  return `
+  <div class="card">
+    <h2>Student Details</h2>
+    <div class="row">
+      <div class="field"><label>Standard</label><select style="width:130px" onchange="printListStandard=this.value; render()">${filterStandardOpts}</select></div>
+      <div class="field"><label>Stream</label><select style="width:130px" onchange="printListStream=this.value; render()">${filterStreamOpts}</select></div>
+      <button class="btn" onclick="printStudentList()">Print student list</button>
+    </div>
+    <div class="pct no-print" style="margin-bottom:14px">Jo standard/stream select karoge, usi ke students ki poori list (roll, naam, standard, stream, number) print hogi.</div>
+    <div class="card" style="padding:0;box-shadow:none;border:1px solid var(--line)">
+      <div class="section-body" style="padding:16px 20px">
+        <h2 style="margin-bottom:12px">Preview (${filteredStudents.length}${filteredStudents.length!==DATA.students.length? ' / '+DATA.students.length : ''})</h2>
+        ${filteredStudents.length ? `<div class="table-wrap"><table><tr><th>Roll no</th><th>Name</th><th>Standard</th><th>Stream</th><th>Number</th></tr>${rows}</table></div>` : `<div class="empty">Is standard/stream me koi student nahi hai.</div>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildStudentListPrintDoc(){
+  const filteredStudents = DATA.students.filter(s=>
+    (!printListStandard || s.standard===printListStandard) &&
+    (!printListStream || s.stream===printListStream));
+
+  const classLine = [printListStandard, printListStream].filter(Boolean).join(' ') || 'All Students';
+  const logoImg = (DATA.school&&DATA.school.logo) ? `<img class="rc-logo" src="${DATA.school.logo}" style="width:56px;height:56px;object-fit:contain;border-radius:4px;background:#fff;padding:3px">` : '';
+  const rows = filteredStudents.map(s=>`
+    <tr><td>${s.roll}</td><td>${s.name}</td><td>${s.standard||'-'}</td><td>${s.stream||'-'}</td><td>${s.mobile||'-'}</td></tr>`).join('');
+
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Student List - ${classLine}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=Sora:wght@700&display=swap" rel="stylesheet">
+  <style>
+  *{box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}body{margin:0;font-family:'Inter',Arial,sans-serif;background:#fff;color:#241c4d}
+  .rc-head{background:linear-gradient(120deg,#4f3cc9 0%,#6a4fe0 60%,#0ea5a5 135%);color:#fff;padding:22px 28px;border-radius:16px 16px 0 0}
+  .rc-head-top{display:flex;align-items:center;gap:14px;text-align:left}
+  .rc-head-top .rc-logo{flex-shrink:0}
+  .rc-head .school{font-family:'Fraunces',serif;font-size:23px;letter-spacing:.3px;margin:0;font-weight:600}
+  .rc-head .school-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:#e6dfff;margin:4px 0 0;line-height:1.5}
+  .rc-head h2{font-family:'Fraunces',serif;margin:14px 0 0;font-size:18px;letter-spacing:1px;font-weight:600;text-transform:uppercase;border-top:1px solid rgba(255,255,255,.25);padding-top:10px;text-align:center}
+  .rc-head p.classline{margin:6px 0 0;font-family:'Inter',sans-serif;font-size:12.5px;color:#e6dfff;text-transform:uppercase;letter-spacing:1px;text-align:center}
+  main{padding:22px 28px;border:1px solid #e7e4f7;border-top:none;border-radius:0 0 16px 16px}
+  table{width:100%;border-collapse:collapse;font-family:'Inter',sans-serif;font-size:14.5px}
+  th{text-align:left;font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#4f3cc9;background:#f6f4ff;border-bottom:2px solid #e7e4f7;padding:8px}
+  td{padding:8px;border-bottom:1px solid #e7e4f7}
+  tr:hover td{background:#faf9ff}
+  .table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .table-wrap table{min-width:420px}
+  @media (max-width:600px){
+    .rc-head{padding:16px 18px;border-radius:10px 10px 0 0}
+    main{padding:14px 16px;border-radius:0 0 10px 10px}
+    .rc-head .school{font-size:19px}
+    .rc-head h2{font-size:15px}
+    table{font-size:13px}
+    th,td{padding:6px}
+  }
+  </style></head><body>
+  <div class="rc-head">
+    <div class="rc-head-top">
+      ${logoImg}
+      <div>
+        <p class="school">${(DATA.school&&DATA.school.name)||''}</p>
+        <p class="school-sub">${(DATA.school&&DATA.school.address)||''}${(DATA.school&&DATA.school.mobile)?'<br>Mobile: '+DATA.school.mobile:''}</p>
+      </div>
+    </div>
+    <h2>Student List</h2>
+    <p class="classline">${classLine}</p>
+  </div>
+  <main>
+    ${rows ? `<div class="table-wrap"><table><tr><th>Roll no</th><th>Name</th><th>Standard</th><th>Stream</th><th>Number</th></tr>${rows}</table></div>` : '<div style="text-align:center;color:#716c94;padding:16px 0">Is filter me koi student nahi mila.</div>'}
+  </main>
+  </body></html>`;
+}
+
+function printStudentList(){
+  const html = buildStudentListPrintDoc();
+  const w = window.open('', '_blank');
+  if(!w){ alert('Popup blocked hai - browser settings me is site ke liye popups allow karo aur dobara try karo.'); return; }
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(()=>{ w.print(); }, 400);
+}
+
+function todayISO(){
+  const d = new Date();
+  const pad = n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+const CALENDAR_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function monthNameFromDate(dateStr){
+  const d = new Date(dateStr+'T00:00:00');
+  return CALENDAR_MONTHS[d.getMonth()];
+}
+function formatExamDate(dateStr){
+  if(!dateStr) return '';
+  const d = new Date(dateStr+'T00:00:00');
+  const pad = n=>String(n).padStart(2,'0');
+  return `${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()}`;
+}
+function examDateDisplay(m){
+  return m.examDate ? formatExamDate(m.examDate) : (m.month || '—');
+}
+function nextUnitTestName(){
+  const nums = DATA.marks.map(m=>{
+    const match = /^Unit Test (\d+)$/i.exec((m.test||'').trim());
+    return match ? Number(match[1]) : null;
+  }).filter(n=>n!==null);
+  const max = nums.length ? Math.max(...nums) : 0;
+  return `Unit Test ${max+1}`;
+}
+// Daily attendance se us mahine ki total working days aur har student ke present/absent
+// counts recalculate karta he — isse Attendance tab aur sabhi charts automatically update ho jaate hain.
+function recalcMonthlyAttendance(month){
+  if(!DATA.dailyAttendance) DATA.dailyAttendance = {};
+  const workingDates = Object.keys(DATA.dailyAttendance).filter(d=>
+    DATA.dailyAttendance[d].status==='working' && monthNameFromDate(d)===month);
+  const workingDaysCount = workingDates.length;
+  if(!DATA.workingDays) DATA.workingDays = {};
+  DATA.workingDays[month] = workingDaysCount;
+  if(!DATA.attendance) DATA.attendance = {};
+  DATA.students.forEach(s=>{
+    let present = 0;
+    workingDates.forEach(d=>{
+      const marks = DATA.dailyAttendance[d].marks || {};
+      if(marks[s.id]==='P') present++;
+    });
+    if(!DATA.attendance[s.id]) DATA.attendance[s.id] = {};
+    DATA.attendance[s.id][month] = { present, absent: Math.max(workingDaysCount-present,0) };
+  });
+}
+function setTakeAttStatus(v){ takeAttStatus = v; render(); }
+function takeAttendanceView(){
+  if(!takeAttDate) takeAttDate = todayISO();
+  if(!DATA.dailyAttendance) DATA.dailyAttendance = {};
+  const existing = DATA.dailyAttendance[takeAttDate];
+  const status = existing ? existing.status : takeAttStatus;
+
+  const filterStandardOpts = ['', ...new Set(DATA.students.map(s=>s.standard).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===takeAttStandard?'selected':''}>${v||'All standards'}</option>`).join('');
+  const filterStreamOpts = ['', ...new Set(DATA.students.map(s=>s.stream).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===takeAttStream?'selected':''}>${v||'All streams'}</option>`).join('');
+
+  const filteredStudents = DATA.students.filter(s=>
+    (!takeAttStandard || s.standard===takeAttStandard) &&
+    (!takeAttStream || s.stream===takeAttStream));
+
+  const rows = filteredStudents.map(s=>{
+    const mark = existing && existing.marks ? existing.marks[s.id] : undefined;
+    const isAbsent = mark==='A';
+    return `<tr><td>${s.roll}</td><td>${s.name}</td>
+      <td style="text-align:center"><input type="checkbox" id="ta-abs-${s.id}" ${isAbsent?'checked':''}></td></tr>`;
+  }).join('');
+
+  return `
+  <div class="card">
+    <h2>Enter Daily Attendance</h2>
+    <div class="row">
+      <div class="field"><label>Date</label><input type="date" id="ta-date" value="${takeAttDate}" onchange="takeAttDate=this.value; render()"></div>
+      <div class="field"><label>Standard</label><select onchange="takeAttStandard=this.value; render()" style="width:100px">${filterStandardOpts}</select></div>
+      <div class="field"><label>Stream</label><select onchange="takeAttStream=this.value; render()" style="width:130px">${filterStreamOpts}</select></div>
+      <div class="field"><label>Day Type</label>
+        <select id="ta-status" onchange="setTakeAttStatus(this.value)" style="width:140px">
+          <option value="working" ${status==='working'?'selected':''}>Working Day</option>
+          <option value="holiday" ${status==='holiday'?'selected':''}>Holiday</option>
+        </select>
+      </div>
+    </div>
+    ${status==='holiday' ? '<div class="empty">Holiday select hai — is date ke liye attendance details ki zaroorat nahi.</div>' :
+      DATA.students.length===0 ? '<div class="empty">Pehle Students tab me student add karo.</div>' :
+      filteredStudents.length===0 ? '<div class="empty">Is standard/stream me koi student nahi mila.</div>' :
+      `<div class="pct" style="margin-bottom:10px">Default sab present maane jaayenge — sirf absent students tick karo.</div>
+       <div class="table-wrap"><table><tr><th>Roll</th><th>Name</th><th>Absent</th></tr>${rows}</table></div>`}
+    <div style="margin-top:20px"><button class="btn" onclick="saveTakeAttendance()">Save Attendance</button></div>
+  </div>`;
+}
+function saveTakeAttendance(){
+  const dateVal = document.getElementById('ta-date').value;
+  const statusVal = document.getElementById('ta-status').value;
+  if(!dateVal){ alert('Date select karo'); return; }
+  if(!DATA.dailyAttendance) DATA.dailyAttendance = {};
+
+  if(statusVal==='holiday'){
+    DATA.dailyAttendance[dateVal] = { status:'holiday', marks:{} };
+  } else {
+    const filteredStudents = DATA.students.filter(s=>
+      (!takeAttStandard || s.standard===takeAttStandard) &&
+      (!takeAttStream || s.stream===takeAttStream));
+    if(filteredStudents.length===0){ alert('Is standard/stream me koi student nahi mila'); return; }
+    const prev = (DATA.dailyAttendance[dateVal] && DATA.dailyAttendance[dateVal].status==='working')
+      ? DATA.dailyAttendance[dateVal].marks : {};
+    const marks = {...prev};
+    filteredStudents.forEach(s=>{
+      const absCheckbox = document.getElementById('ta-abs-'+s.id);
+      marks[s.id] = (absCheckbox && absCheckbox.checked) ? 'A' : 'P';
+    });
+    DATA.dailyAttendance[dateVal] = { status:'working', marks };
+  }
+
+  recalcMonthlyAttendance(monthNameFromDate(dateVal));
+  saveData();
+  alert('Attendance ' + dateVal + ' ke liye save ho gayi!');
+  render();
+}
+
+function attendanceView(){
+  const monthOpts = MONTHS.map(m=>`<option value="${m}" ${m===currentMonth?'selected':''}>${m}</option>`).join('');
+  const workingDays = workingDaysFor(currentMonth);
+
+  const filterStandardOpts = ['', ...new Set(DATA.students.map(s=>s.standard).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===attFilterStandard?'selected':''}>${v||'All standards'}</option>`).join('');
+  const filterStreamOpts = ['', ...new Set(DATA.students.map(s=>s.stream).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===attFilterStream?'selected':''}>${v||'All streams'}</option>`).join('');
+
+  const filteredStudents = DATA.students.filter(s=>
+    (!attFilterStandard || s.standard===attFilterStandard) &&
+    (!attFilterStream || s.stream===attFilterStream));
+
+  const rows = filteredStudents.map(s=>{
+    const a = attFor(s.id, currentMonth);
+    return `<tr><td>${s.roll}</td><td>${s.name}</td>
+      <td><input type="number" min="0" style="width:70px" value="${a.present||''}" onchange="setAtt(${s.id}, '${currentMonth}', 'present', this.value)"></td>
+      <td class="pct">${workingDays>0 ? a.absent : '-'}</td>
+      <td class="pct">${a.total>0 ? Math.round(a.pct*100)+'%' : '-'}</td></tr>`;
+  }).join('');
+  
+  return `
+  <div class="card">
+    <div class="row" style="margin-bottom:20px">
+        <div class="field">
+            <label>Select Month for Attendance</label>
+            <select onchange="currentMonth=this.value; render()">${monthOpts}</select>
+        </div>
+        <div class="field">
+            <label>Total Working Days (${currentMonth})</label>
+            <input type="number" min="0" style="width:110px" value="${workingDays||''}" onchange="setWorkingDays('${currentMonth}', this.value)">
+        </div>
+        <div class="field">
+            <label>Standard</label>
+            <select onchange="attFilterStandard=this.value; render()" style="width:100px">${filterStandardOpts}</select>
+        </div>
+        <div class="field">
+            <label>Stream</label>
+            <select onchange="attFilterStream=this.value; render()" style="width:130px">${filterStreamOpts}</select>
+        </div>
+    </div>
+    <h2>Enter Monthly Attendance - ${currentMonth}</h2>
+    ${workingDays===0 ? '<div class="empty" style="padding:6px 0 16px">Upar total working days bharo, phir sirf present days daalne se absent khud calculate ho jayega.</div>' : ''}
+    ${DATA.students.length===0?'<div class="empty">Pehle Students tab me student add karo.</div>':
+    filteredStudents.length===0?'<div class="empty">Is standard/stream me koi student nahi mila.</div>':
+    `<div class="table-wrap"><table><tr><th>Roll</th><th>Name</th><th>Present</th><th>Absent</th><th>Attendance %</th></tr>${rows}</table></div>`}
+  </div>`;
+}
+function setAtt(roll, month, field, value){
+  if(!DATA.attendance[roll]) DATA.attendance[roll] = {};
+  if(!DATA.attendance[roll][month]) DATA.attendance[roll][month] = {present:0, absent:0};
+  DATA.attendance[roll][month][field] = Number(value)||0;
+  saveData();
+}
+
+function behaviorView(){
+  const monthOpts = MONTHS.map(m=>`<option value="${m}" ${m===currentMonth?'selected':''}>${m}</option>`).join('');
+
+  const filterStandardOpts = ['', ...new Set(DATA.students.map(s=>s.standard).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===behFilterStandard?'selected':''}>${v||'All standards'}</option>`).join('');
+  const filterStreamOpts = ['', ...new Set(DATA.students.map(s=>s.stream).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===behFilterStream?'selected':''}>${v||'All streams'}</option>`).join('');
+
+  const filteredStudents = DATA.students.filter(s=>
+    (!behFilterStandard || s.standard===behFilterStandard) &&
+    (!behFilterStream || s.stream===behFilterStream));
+
+  const rows = filteredStudents.map(s=>{
+    const entries = behEntriesFor(s.id, currentMonth);
+    const avg = behAvg(s.id, currentMonth);
+    const chips = entries.length ? entries.map(e=>`
+      <span class="beh-chip">
+        ${starPickerHtml(`updateBehaviorRating(${s.id}, '${currentMonth}', ${e.id}, `, e.rating)}
+        <button type="button" onclick="deleteBehaviorRating(${s.id}, '${currentMonth}', ${e.id})" title="Delete" style="margin-left:4px">✕</button>
+      </span>`).join(' ') : '<span class="empty" style="padding:0">Koi rating nahi</span>';
+    return `<tr>
+      <td>${s.roll}</td><td>${s.name}</td>
+      <td>${chips}</td>
+      <td class="pct">${avg!==null ? avg.toFixed(1)+'/5 ('+entries.length+')' : '-'}</td>
+      <td>${starPickerHtml(`addBehaviorRating(${s.id}, '${currentMonth}', `, 0)}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="card">
+    <div class="row" style="margin-bottom:20px">
+        <div class="field">
+            <label>Select Month for Behavior Rating</label>
+            <select onchange="currentMonth=this.value; render()">${monthOpts}</select>
+        </div>
+        <div class="field">
+            <label>Standard</label>
+            <select onchange="behFilterStandard=this.value; render()" style="width:100px">${filterStandardOpts}</select>
+        </div>
+        <div class="field">
+            <label>Stream</label>
+            <select onchange="behFilterStream=this.value; render()" style="width:130px">${filterStreamOpts}</select>
+        </div>
+    </div>
+    <h2>Behavior Rating - ${currentMonth}</h2>
+    <div class="pct" style="margin-bottom:14px">Star pe click karke rating do — 1 star = Needs Improvement, 5 star = Excellent. Har teacher apni rating alag se de sakta he; jitni bhi ratings aayengi, unka average final Behavior Score banega.</div>
+    ${DATA.students.length===0?'<div class="empty">Pehle Students tab me student add karo.</div>':
+    filteredStudents.length===0?'<div class="empty">Is standard/stream me koi student nahi mila.</div>':
+    `<div class="table-wrap"><table><tr><th>Roll</th><th>Name</th><th>Ratings (edit/delete)</th><th>Average</th><th>Add New Rating</th></tr>${rows}</table></div>`}
+  </div>`;
+}
+
+function reportView(){
+  if(DATA.students.length===0) return '<div class="card"><div class="empty">Pehle students, marks aur attendance add karo.</div></div>';
+
+  const standards = [...new Set(DATA.students.map(s=>s.standard).filter(Boolean))];
+  const streams = [...new Set(DATA.students.map(s=>s.stream).filter(Boolean))];
+
+  const filteredStudents = DATA.students.filter(s=>
+    (!reportFilterStandard || s.standard===reportFilterStandard) &&
+    (!reportFilterStream || s.stream===reportFilterStream));
+
+  if(selectedRoll===null || selectedRoll===undefined || !filteredStudents.some(s=>s.id===selectedRoll)){
+    selectedRoll = filteredStudents.length ? filteredStudents[0].id : null;
+  }
+  const opts = filteredStudents.map(s=>`<option value="${s.id}" ${s.id===selectedRoll?'selected':''}>${s.roll} - ${s.name}</option>`).join('');
+  const monthOpts = MONTHS.map(m=>`<option value="${m}" ${m===currentMonth?'selected':''}>${m}</option>`).join('');
+
+  return `
+  <div class="select-roll">
+    <div class="field">
+        <label style="font-size:12px;color:var(--muted)">Month:</label>
+        <select onchange="currentMonth=this.value;render()">${monthOpts}</select>
+    </div>
+    <div class="field" style="margin-left:10px">
+        <label style="font-size:12px;color:var(--muted)">Standard:</label>
+        <select onchange="reportFilterStandard=this.value;selectedRoll=null;render()">
+          <option value="">All</option>
+          ${standards.map(st=>`<option value="${st}" ${st===reportFilterStandard?'selected':''}>${st}</option>`).join('')}
+        </select>
+    </div>
+    <div class="field" style="margin-left:10px">
+        <label style="font-size:12px;color:var(--muted)">Stream:</label>
+        <select onchange="reportFilterStream=this.value;selectedRoll=null;render()">
+          <option value="">All</option>
+          ${streams.map(st=>`<option value="${st}" ${st===reportFilterStream?'selected':''}>${st}</option>`).join('')}
+        </select>
+    </div>
+    <div class="field" style="margin-left:10px">
+        <label style="font-size:12px;color:var(--muted)">Student:</label>
+        <select onchange="selectedRoll=Number(this.value);render()">${opts}</select>
+    </div>
+    <div class="printbar" style="margin:0; align-self:flex-end; margin-left:15px">
+        <button class="btn secondary" onclick="printReport([${selectedRoll}], '${currentMonth}')" ${selectedRoll===null?'disabled':''}>Print this report</button>
+    </div>
+  </div>
+  ${filteredStudents.length ? reportCardHtml(selectedRoll, '', currentMonth) : '<div class="card"><div class="empty">Is standard/stream me koi student nahi hai.</div></div>'}
+  ${filteredStudents.length && selectedRoll!==null ? `
+  <div class="card no-print">
+    <h2>Performance Trend</h2>
+    <div class="pct" style="margin-bottom:10px">Poore saal me is student ka Marks, Attendance aur Behavior kaise change hua - month-wise.</div>
+    ${hasAnyTrendData(selectedRoll)
+      ? `<div class="chartbox" style="height:280px"><canvas id="trend-${selectedRoll}" role="img" aria-label="Performance trend chart for ${studentName(selectedRoll)}"></canvas></div>`
+      : `<div class="empty">Is student ke liye abhi tak kisi bhi month me marks, attendance ya behavior data nahi hai.</div>`}
+  </div>` : ''}`;
+}
+
+
+
+function reportCardHtml(roll, suffix, month, opts){
+  opts = opts || {};
+  const name = studentName(roll);
+  const student = DATA.students.find(s=>s.id===roll);
+  const displayRoll = student ? student.roll : roll;
+  const classLine = student ? [student.standard, student.stream].filter(Boolean).join(' ') : '';
+  const att = attFor(roll, month);
+  const subs = subjectsFor(roll, month);
+  const overall = overallAvg(roll, month);
+  const grade = gradeFor(overall);
+  
+  let remark = '';
+  if(DATA.remarks[roll] && DATA.remarks[roll][month]){
+      remark = DATA.remarks[roll][month];
+  }
+
+  return `
+  <div class="reportcard ${opts.badge?'star-card':''}">
+    <div class="rc-head">
+      <div class="rc-head-top">
+        ${(DATA.school&&DATA.school.logo) ? `<img class="rc-logo" src="${DATA.school.logo}" style="width:56px;height:56px;object-fit:contain;border-radius:4px;background:#fff;padding:3px">` : ''}
+        <div>
+          <p class="school">${(DATA.school&&DATA.school.name)||''}</p>
+          <p class="school-sub">${(DATA.school&&DATA.school.address)||''}${(DATA.school&&DATA.school.mobile)?'<br>Mobile: '+DATA.school.mobile:''}</p>
+        </div>
+      </div>
+      <h2>${opts.title || ('Student Progress Report - '+month)}</h2>
+      ${opts.badge ? `<p style="text-align:center;margin:8px 0 0"><span class="star-badge">${opts.badge}</span></p>` : ''}
+    </div>
+    <div class="rc-body">
+      <div class="rc-student">
+        <div class="name">${name}</div>
+        <div class="roll">Roll No ${displayRoll}${classLine?' &nbsp;•&nbsp; '+classLine:''} &nbsp;•&nbsp; Overall <span class="grade grade-${grade}">${grade}</span></div>
+      </div>
+      <div class="rc-charts">
+        <div>
+          <div class="rc-section-title">Attendance</div>
+          <div class="chartbox"><canvas id="pie-${roll}${suffix}" role="img" aria-label="Attendance pie chart for ${name}: ${att.present} present, ${att.absent} absent">Present ${att.present}, Absent ${att.absent}</canvas></div>
+        </div>
+        <div>
+          <div class="rc-section-title">Subject marks</div>
+          <div class="chartbox"><canvas id="bar-${roll}${suffix}" role="img" aria-label="Subject-wise marks percentage for ${name}">${subs.length?subs.map(s=>s+': '+Math.round(subjectAvg(roll,s,month)*100)+'%').join(', '):'No Marks'}</canvas></div>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div>Attendance: <b>${att.total>0?Math.round(att.pct*100):0}%</b></div>
+        <div>Overall marks: <b>${Math.round(overall*100)}%</b></div>
+        <div>Behavior: <b>${starsDisplayHtml(behAvg(roll,month))}</b></div>
+      </div>
+      <div class="rc-remarks no-print">
+        <label>Tutor's remarks for ${month}</label>
+        <textarea onchange="setRemark(${roll}, '${month}', this.value)" placeholder="Type remarks for this student...">${remark}</textarea>
+      </div>
+      ${remark ? `<div class="rc-remarks" style="display:none" data-print-remark>${remark}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function setRemark(roll, month, val){ 
+    if(!DATA.remarks[roll]) DATA.remarks[roll] = {};
+    DATA.remarks[roll][month] = val; 
+    saveData(); 
+}
+
+// Star of the Month: har student ka combined score (70% marks + 15% attendance + 15% behavior) nikalta he
+// us month ke liye, aur sabse zyada score wale student ko "Star" chunta he. Behavior score multiple teachers
+// ki 1-5 ratings ka average hota he, jise 0-1 scale par convert karke jodte hain. Students jinka us month me
+// koi data (marks/attendance/behavior) nahi he, unko skip karta he.
+function computeStarOfMonth(month, standardFilter, streamFilter){
+  let best = null;
+  const students = DATA.students.filter(s=>
+    (!standardFilter || s.standard===standardFilter) &&
+    (!streamFilter || s.stream===streamFilter));
+  students.forEach(s=>{
+    const hasMarks = DATA.marks.some(m=>m.roll===s.id && m.month===month && !m.absent);
+    const att = attFor(s.id, month);
+    const hasAtt = att.total > 0;
+    const beh = behAvg(s.id, month);
+    const hasBehavior = beh !== null;
+    if(!hasMarks && !hasAtt && !hasBehavior) return;
+    const overall = overallAvg(s.id, month);
+    const attPct = hasAtt ? att.pct : 0;
+    const behPct = hasBehavior ? (beh-1)/4 : 0;
+    const score = (overall * 0.7) + (attPct * 0.15) + (behPct * 0.15);
+    if(!best || score > best.score){
+      best = { roll: s.id, name: s.name, score, overall, attPct, att, beh, hasMarks };
+    }
+  });
+  return best;
+}
+
+function starOfMonthView(){
+  const monthOpts = MONTHS.map(m=>`<option value="${m}" ${m===currentMonth?'selected':''}>${m}</option>`).join('');
+  const standards = [...new Set(DATA.students.map(s=>s.standard).filter(Boolean))];
+  const streams = [...new Set(DATA.students.map(s=>s.stream).filter(Boolean))];
+  const star = computeStarOfMonth(currentMonth, starMonthFilterStandard, starMonthFilterStream);
+  return `
+  <div class="row" style="margin-bottom:18px">
+    <div class="field">
+        <label>Month</label>
+        <select onchange="currentMonth=this.value;render()">${monthOpts}</select>
+    </div>
+    <div class="field">
+        <label>Standard</label>
+        <select onchange="starMonthFilterStandard=this.value;render()">
+          <option value="">All</option>
+          ${standards.map(st=>`<option value="${st}" ${st===starMonthFilterStandard?'selected':''}>${st}</option>`).join('')}
+        </select>
+    </div>
+    <div class="field">
+        <label>Stream</label>
+        <select onchange="starMonthFilterStream=this.value;render()">
+          <option value="">All</option>
+          ${streams.map(st=>`<option value="${st}" ${st===starMonthFilterStream?'selected':''}>${st}</option>`).join('')}
+        </select>
+    </div>
+    ${star ? `<div class="printbar" style="margin:0; align-self:flex-end; margin-left:15px">
+        <button class="btn secondary" onclick="printStarOfMonth('${currentMonth}')">Print this report</button>
+    </div>` : ''}
+  </div>
+  ${star ? `
+  <div class="star-spotlight">
+    <span class="star-ribbon">🌟 Star of the Month</span>
+    <div class="star-spotlight-inner">
+      <div class="star-orb">${(star.name||'?').trim().charAt(0).toUpperCase()}</div>
+      <div class="star-info">
+        <div class="star-eyebrow">✨ ${currentMonth} Topper</div>
+        <p class="star-name">${star.name}</p>
+      </div>
+    </div>
+    <div class="star-rings">
+      <div class="star-ring">
+        <div class="ring" style="background:conic-gradient(var(--accent) ${Math.round(star.overall*100)}%, rgba(255,255,255,.15) 0)"><span>${Math.round(star.overall*100)}%</span></div>
+        <div class="ring-label">Overall Marks</div>
+      </div>
+      <div class="star-ring">
+        <div class="ring" style="background:conic-gradient(var(--teal) ${star.att.total>0?Math.round(star.attPct*100):0}%, rgba(255,255,255,.15) 0)"><span>${star.att.total>0?Math.round(star.attPct*100):0}%</span></div>
+        <div class="ring-label">Attendance</div>
+      </div>
+      <div class="star-ring">
+        <div class="ring" style="background:conic-gradient(#a78bfa ${star.beh!==null?Math.round(star.beh*20):0}%, rgba(255,255,255,.15) 0)"><span style="font-size:14px">${star.beh!==null?star.beh.toFixed(1)+'/5':'-'}</span></div>
+        <div class="ring-label">Behavior${star.beh!==null?' ('+('★'.repeat(Math.round(star.beh))+'☆'.repeat(5-Math.round(star.beh)))+')':''}</div>
+      </div>
+      <div class="star-ring">
+        <div class="ring" style="background:conic-gradient(#ff8fb3 ${Math.round(star.score*100)}%, rgba(255,255,255,.15) 0)"><span>${Math.round(star.score*100)}%</span></div>
+        <div class="ring-label">Combined Score</div>
+      </div>
+    </div>
+  </div>
+  ${reportCardHtml(star.roll, '-star', currentMonth, {title:'Student Progress Report - '+currentMonth, badge:'🌟 Star of the Month'})}
+  ` : `<div class="card"><div class="empty">${currentMonth} ke liye abhi tak kisi student ke marks, attendance ya behavior record nahi mile hain. Data add karo, phir Star of the Month yahan automatically dikhega.</div></div>`}
+  `;
+}
+
+function printStarOfMonth(month){
+  const star = computeStarOfMonth(month, starMonthFilterStandard, starMonthFilterStream);
+  if(!star){ alert('Is month/standard/stream ke liye Star of the Month available nahi hai — pehle marks ya attendance add karo.'); return; }
+  printReport([star.roll], month, star.roll);
+}
+
+function drawReportCharts(roll, suffix, month){
+  const att = attFor(roll, month);
+  const subs = subjectsFor(roll, month);
+  const pieId = 'pie-'+roll+suffix, barId = 'bar-'+roll+suffix;
+  
+  if(charts[pieId]) charts[pieId].destroy();
+  if(charts[barId]) charts[barId].destroy();
+  
+  const chartPalette = ['#4f3cc9','#0ea5a5','#f5a524','#e2436b','#7d6cf0','#1a9c6b','#eab308','#06b6d4'];
+
+  const pieSliceLabelPlugin = {
+    id:'pieSliceLabel-'+pieId,
+    afterDatasetsDraw(chart){
+      const {ctx} = chart;
+      chart.getDatasetMeta(0).data.forEach((slice,i)=>{
+        const val = chart.data.datasets[0].data[i];
+        if(!val) return;
+        const pos = slice.tooltipPosition();
+        ctx.save();
+        ctx.font = '700 13px Inter, sans-serif';
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(val, pos.x, pos.y);
+        ctx.restore();
+      });
+    }
+  };
+  const pieEl = document.getElementById(pieId);
+  if(pieEl) charts[pieId] = new Chart(pieEl, {
+    type:'doughnut',
+    data:{labels:['Present','Absent'], datasets:[{data:[att.present,att.absent], backgroundColor:['#0ea5a5','#e2436b'], borderColor:'#fff', borderWidth:3, hoverOffset:6}]},
+    options:{responsive:true, maintainAspectRatio:false, animation:false, cutout:'62%',
+      plugins:{legend:{display:true, position:'bottom', labels:{font:{size:11, family:'Inter'}, color:'#716c94', usePointStyle:true, pointStyle:'circle', padding:14,
+        generateLabels(chart){
+          const data = chart.data;
+          return data.labels.map((label,i)=>({
+            text: label+': '+data.datasets[0].data[i],
+            fillStyle: data.datasets[0].backgroundColor[i],
+            strokeStyle: data.datasets[0].backgroundColor[i],
+            pointStyle:'circle',
+            index:i
+          }));
+        }
+      }}}},
+    plugins:[pieSliceLabelPlugin]
+  });
+  
+  const barEl = document.getElementById(barId);
+  const barValues = subs.map(s=>Math.round(subjectAvg(roll,s,month)*100));
+  const barColors = subs.map((_,i)=>chartPalette[i % chartPalette.length]);
+  const valueLabelPlugin = {
+    id:'valueLabel-'+barId,
+    afterDatasetsDraw(chart){
+      const {ctx, chartArea} = chart;
+      chart.getDatasetMeta(0).data.forEach((bar,i)=>{
+        ctx.save();
+        ctx.fillStyle = '#241c4d';
+        ctx.font = '700 11px Inter, Arial';
+        ctx.textAlign = 'center';
+        const y = Math.max(bar.y - 6, chartArea.top + 10);
+        ctx.fillText(barValues[i]+'%', bar.x, y);
+        ctx.restore();
+      });
+    }
+  };
+  
+  if(barEl) charts[barId] = new Chart(barEl, {
+    type:'bar',
+    data:{labels:subs.length ? subs : ['No Data'], datasets:[{label:'%', data:subs.length ? barValues : [0], backgroundColor:subs.length ? barColors : '#e7e4f7', borderRadius:6, maxBarThickness:44}]},
+    options:{responsive:true, maintainAspectRatio:false, animation:false,
+      layout:{padding:{top:18}},
+      plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%', font:{family:'Inter',size:10.5}, color:'#716c94'}, grid:{color:'#ece9fa'}},
+               x:{ticks:{font:{family:'Inter',size:10.5}, color:'#716c94'}, grid:{display:false}}}},
+    plugins: subs.length ? [valueLabelPlugin] : []
+  });
+}
+
+function drawTrendChart(roll){
+  const trendId = 'trend-'+roll;
+  if(charts[trendId]) charts[trendId].destroy();
+  const trendEl = document.getElementById(trendId);
+  if(!trendEl) return;
+  const t = trendDataFor(roll);
+  charts[trendId] = new Chart(trendEl, {
+    type:'line',
+    data:{
+      labels: t.months.map(m=>m.slice(0,3)),
+      datasets:[
+        {label:'Marks %', data:t.marksSeries, borderColor:'#4f3cc9', backgroundColor:'#4f3cc9', tension:0.3, spanGaps:true, pointRadius:4},
+        {label:'Attendance %', data:t.attSeries, borderColor:'#0ea5a5', backgroundColor:'#0ea5a5', tension:0.3, spanGaps:true, pointRadius:4},
+        {label:'Behavior %', data:t.behSeries, borderColor:'#f5a524', backgroundColor:'#f5a524', tension:0.3, spanGaps:true, pointRadius:4}
+      ]
+    },
+    options:{responsive:true, maintainAspectRatio:false, animation:false,
+      plugins:{legend:{display:true, position:'bottom', labels:{font:{size:11, family:'Inter'}, color:'#716c94', usePointStyle:true, pointStyle:'circle', padding:14}}},
+      scales:{y:{beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%', font:{family:'Inter',size:10.5}, color:'#716c94'}, grid:{color:'#ece9fa'}},
+               x:{ticks:{font:{family:'Inter',size:10.5}, color:'#716c94'}, grid:{display:false}}}}
+  });
+}
+
+// ===== Student Profile (Month Wise / Subject Wise) =====
+function subjectsForRoll(roll){
+  return [...new Set(DATA.marks.filter(m=>m.roll===roll).map(m=>m.subject))];
+}
+function subjectAvgAllMonths(roll, subject){
+  const rows = DATA.marks.filter(m=>m.roll===roll && m.subject===subject);
+  const max = rows.reduce((s,r)=>s+Number(r.max||0),0);
+  const obt = rows.reduce((s,r)=>s+Number(r.obtained||0),0);
+  return max>0 ? obt/max : 0;
+}
+function studentProfileHubView(){
+  const filteredStudents = DATA.students.filter(s=>
+    (!profileFilterStandard || s.standard===profileFilterStandard) &&
+    (!profileFilterStream || s.stream===profileFilterStream));
+  if(profileSelectedRoll===null || profileSelectedRoll===undefined || !filteredStudents.some(s=>s.id===profileSelectedRoll)){
+    profileSelectedRoll = filteredStudents.length ? filteredStudents[0].id : null;
+  }
+  const standardOpts = ['', ...new Set(DATA.students.map(s=>s.standard).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===profileFilterStandard?'selected':''}>${v||'All standards'}</option>`).join('');
+  const streamOpts = ['', ...new Set(DATA.students.map(s=>s.stream).filter(Boolean))]
+    .map(v=>`<option value="${v}" ${v===profileFilterStream?'selected':''}>${v||'All streams'}</option>`).join('');
+  const studentOpts = filteredStudents.map(s=>`<option value="${s.id}" ${s.id===profileSelectedRoll?'selected':''}>${s.roll} - ${s.name}</option>`).join('');
+
+  const filterCard = `
+  <div class="card no-print">
+    <h2>Student Profile</h2>
+    <div class="row">
+      <div class="field"><label>Standard</label><select onchange="profileFilterStandard=this.value;profileSelectedRoll=null;render()">${standardOpts}</select></div>
+      <div class="field"><label>Stream</label><select onchange="profileFilterStream=this.value;profileSelectedRoll=null;render()">${streamOpts}</select></div>
+      <div class="field" style="min-width:220px"><label>Student</label>
+        <select onchange="profileSelectedRoll=Number(this.value);render()">${filteredStudents.length?studentOpts:'<option value="">No student in this filter</option>'}</select>
+      </div>
+      <div class="field">
+        <label>View</label>
+        <div style="display:flex;gap:8px">
+          <button class="btn ${profileSubTab==='monthwise'?'':'secondary'}" onclick="setProfileSubTab('monthwise')">Month Wise</button>
+          <button class="btn ${profileSubTab==='subjectwise'?'':'secondary'}" onclick="setProfileSubTab('subjectwise')">Subject Wise</button>
+          <button class="btn ${profileSubTab==='unittestwise'?'':'secondary'}" onclick="setProfileSubTab('unittestwise')">Unit Test Wise</button>
+        </div>
+      </div>
+      <button class="btn secondary" onclick="printStudentProfile()" ${profileSelectedRoll===null?'disabled':''}>Print this report</button>
+    </div>
+  </div>`;
+
+  if(!filteredStudents.length || profileSelectedRoll===null){
+    return filterCard + '<div class="card"><div class="empty">Is standard/stream me koi student nahi hai.</div></div>';
+  }
+
+  const s = DATA.students.find(x=>x.id===profileSelectedRoll);
+  const classLine = s ? [s.standard, s.stream].filter(Boolean).join(' ') : '';
+  const overall = overallAvgAllMonths(profileSelectedRoll);
+  const summaryCard = `
+  <div class="card">
+    <h2>${s?s.name:''}</h2>
+    <div class="pct" style="font-size:14px;margin-top:-8px;margin-bottom:4px">Roll No ${s?s.roll:''}${classLine?' &nbsp;&bull;&nbsp; '+classLine:''}${overall!==null?' &nbsp;&bull;&nbsp; Overall <span class="grade grade-'+gradeFor(overall)+'">'+gradeFor(overall)+'</span> ('+Math.round(overall*100)+'%)':''}</div>
+  </div>`;
+
+  return filterCard + summaryCard + (profileSubTab==='monthwise' ? profileMonthWiseView(profileSelectedRoll)
+    : profileSubTab==='subjectwise' ? profileSubjectWiseView(profileSelectedRoll)
+    : profileUnitTestWiseView(profileSelectedRoll));
+}
+function overallAvgAllMonths(roll){
+  const rows = DATA.marks.filter(m=>m.roll===roll);
+  const max = rows.reduce((s,r)=>s+Number(r.max||0),0);
+  const obt = rows.reduce((s,r)=>s+Number(r.obtained||0),0);
+  return max>0 ? obt/max : null;
+}
+function profileMonthWiseView(roll){
+  const t = trendDataFor(roll);
+  const hasData = t.marksSeries.some(v=>v!==null);
+  return `
+  <div class="card">
+    <h2>Month Wise Performance</h2>
+    ${hasData ? `<div class="chartbox" style="height:320px"><canvas id="profile-month-bar-${roll}" role="img" aria-label="Month wise marks performance"></canvas></div>`
+      : '<div class="empty">Is student ke liye abhi tak koi marks entry nahi hai.</div>'}
+  </div>`;
+}
+function profileSubjectWiseView(roll){
+  const subs = subjectsForRoll(roll);
+  return `
+  <div class="card">
+    <h2>Subject Wise Performance</h2>
+    ${subs.length ? `<div class="chartbox" style="height:320px"><canvas id="profile-subject-bar-${roll}" role="img" aria-label="Subject wise marks performance"></canvas></div>`
+      : '<div class="empty">Is student ke liye abhi tak koi marks entry nahi hai.</div>'}
+  </div>`;
+}
+function testsForRoll(roll){
+  const tests = [...new Set(DATA.marks.filter(m=>m.roll===roll).map(m=>m.test).filter(Boolean))];
+  return tests.sort((a,b)=>a.localeCompare(b, undefined, {numeric:true, sensitivity:'base'}));
+}
+function profileUnitTestWiseView(roll){
+  const tests = testsForRoll(roll);
+  if(!tests.length){
+    return `<div class="card"><h2>Unit Test Wise Performance</h2><div class="empty">Is student ke liye abhi tak koi unit test ka marks entry nahi hai.</div></div>`;
+  }
+  let sr = 0;
+  const rows = tests.map(test=>{
+    const marks = DATA.marks.filter(m=>m.roll===roll && m.test===test);
+    return marks.map(r=>{
+      sr++;
+      const pct = (!r.absent && r.max>0) ? Math.round(r.obtained/r.max*100) : null;
+      return `<tr>
+        <td style="text-align:center">${sr}</td>
+        <td>${test}</td>
+        <td style="text-align:center">${examDateDisplay(r)}</td>
+        <td>${r.subject}</td>
+        <td>${r.chapter||'—'}</td>
+        <td>${r.topic||'—'}</td>
+        <td style="text-align:center">${r.max}</td>
+        <td style="text-align:center">${r.absent?`<span class="tag-absent">AB</span>`:r.obtained}</td>
+        <td class="pct" style="text-align:center">${pct!==null?pct+'%':'—'}</td>
+      </tr>`;
+    }).join('');
+  }).join('');
+  return `
+  <div class="card">
+    <h2>Unit Test Wise Performance</h2>
+    <div class="table-wrap"><table>
+      <tr><th style="text-align:center">Sr No.</th><th>Unit Test Name</th><th style="text-align:center">Exam Date</th><th>Subject</th><th>Chapter</th><th>Topic</th><th style="text-align:center">Max. Marks</th><th style="text-align:center">Obtained Marks</th><th style="text-align:center">Percentage</th></tr>
+      ${rows}
+    </table></div>
+  </div>`;
+}
+function drawProfileMonthChart(roll){
+  const id = 'profile-month-bar-'+roll;
+  if(charts[id]) charts[id].destroy();
+  const el = document.getElementById(id);
+  if(!el) return;
+  const t = trendDataFor(roll);
+  const chartPalette = ['#4f3cc9','#0ea5a5','#f5a524','#e2436b','#7d6cf0','#1a9c6b','#eab308','#06b6d4','#c026d3','#65a30d','#0284c7','#dc2626'];
+  const barValues = t.marksSeries;
+  const valueLabelPlugin = {
+    id:'valueLabel-'+id,
+    afterDatasetsDraw(chart){
+      const {ctx, chartArea} = chart;
+      chart.getDatasetMeta(0).data.forEach((bar,i)=>{
+        if(barValues[i]===null || barValues[i]===undefined) return;
+        ctx.save();
+        ctx.fillStyle = '#241c4d';
+        ctx.font = '700 11px Inter, Arial';
+        ctx.textAlign = 'center';
+        const y = Math.max(bar.y - 6, chartArea.top + 10);
+        ctx.fillText(barValues[i]+'%', bar.x, y);
+        ctx.restore();
+      });
+    }
+  };
+  charts[id] = new Chart(el, {
+    type:'bar',
+    data:{labels:t.months.map(m=>m.slice(0,3)), datasets:[{label:'Marks %', data:barValues, backgroundColor:chartPalette, borderRadius:6, maxBarThickness:44}]},
+    options:{responsive:true, maintainAspectRatio:false, animation:false,
+      layout:{padding:{top:18}},
+      plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%', font:{family:'Inter',size:10.5}, color:'#716c94'}, grid:{color:'#ece9fa'}},
+               x:{ticks:{font:{family:'Inter',size:10.5}, color:'#716c94'}, grid:{display:false}}}},
+    plugins:[valueLabelPlugin]
+  });
+}
+function drawProfileSubjectChart(roll){
+  const id = 'profile-subject-bar-'+roll;
+  if(charts[id]) charts[id].destroy();
+  const el = document.getElementById(id);
+  if(!el) return;
+  const subs = subjectsForRoll(roll);
+  const chartPalette = ['#4f3cc9','#0ea5a5','#f5a524','#e2436b','#7d6cf0','#1a9c6b','#eab308','#06b6d4'];
+  const barValues = subs.map(s=>Math.round(subjectAvgAllMonths(roll,s)*100));
+  const barColors = subs.map((_,i)=>chartPalette[i % chartPalette.length]);
+  const valueLabelPlugin = {
+    id:'valueLabel-'+id,
+    afterDatasetsDraw(chart){
+      const {ctx, chartArea} = chart;
+      chart.getDatasetMeta(0).data.forEach((bar,i)=>{
+        ctx.save();
+        ctx.fillStyle = '#241c4d';
+        ctx.font = '700 11px Inter, Arial';
+        ctx.textAlign = 'center';
+        const y = Math.max(bar.y - 6, chartArea.top + 10);
+        ctx.fillText(barValues[i]+'%', bar.x, y);
+        ctx.restore();
+      });
+    }
+  };
+  charts[id] = new Chart(el, {
+    type:'bar',
+    data:{labels:subs, datasets:[{label:'%', data:barValues, backgroundColor:barColors, borderRadius:6, maxBarThickness:44}]},
+    options:{responsive:true, maintainAspectRatio:false, animation:false,
+      layout:{padding:{top:18}},
+      plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:true, min:0, max:100, ticks:{stepSize:20, callback:v=>v+'%', font:{family:'Inter',size:10.5}, color:'#716c94'}, grid:{color:'#ece9fa'}},
+               x:{ticks:{font:{family:'Inter',size:10.5}, color:'#716c94'}, grid:{display:false}}}},
+    plugins:[valueLabelPlugin]
+  });
+}
+
+function buildProfilePrintDoc(roll, subTab){
+  const student = DATA.students.find(s=>s.id===roll);
+  const name = student ? student.name : 'Unknown';
+  const displayRoll = student ? student.roll : roll;
+  const classLine = student ? [student.standard, student.stream].filter(Boolean).join(' ') : '';
+  const overall = overallAvgAllMonths(roll);
+  const grade = overall!==null ? gradeFor(overall) : null;
+  const chartId = subTab==='monthwise' ? 'profile-month-bar-'+roll : 'profile-subject-bar-'+roll;
+  const chartTitle = subTab==='monthwise' ? 'Month Wise Performance' : subTab==='subjectwise' ? 'Subject Wise Performance' : 'Unit Test Wise Performance';
+  const chartImg = (subTab==='monthwise' || subTab==='subjectwise') && charts[chartId] ? charts[chartId].toBase64Image() : '';
+  const unitTestTablesHtml = subTab==='unittestwise' ? (()=>{
+    const td = 'padding:6px;border-bottom:1px solid #e7e4f7';
+    const th = 'text-align:center;padding:6px;border-bottom:2px solid #e7e4f7';
+    let sr = 0;
+    const rows = testsForRoll(roll).map(test=>{
+      const marks = DATA.marks.filter(m=>m.roll===roll && m.test===test);
+      return marks.map(r=>{
+        sr++;
+        const pct = (!r.absent && r.max>0) ? Math.round(r.obtained/r.max*100) : null;
+        return `<tr>
+          <td style="${td};text-align:center">${sr}</td>
+          <td style="${td}">${test}</td>
+          <td style="${td};text-align:center">${examDateDisplay(r)}</td>
+          <td style="${td}">${r.subject}</td>
+          <td style="${td}">${r.chapter||'—'}</td>
+          <td style="${td}">${r.topic||'—'}</td>
+          <td style="${td};text-align:center">${r.max}</td>
+          <td style="${td};text-align:center">${r.absent?'<span class="tag-absent">AB</span>':r.obtained}</td>
+          <td style="${td};text-align:center">${pct!==null?pct+'%':'—'}</td>
+        </tr>`;
+      }).join('');
+    }).join('');
+    return `<table style="width:100%;border-collapse:collapse;font-size:13.5px">
+      <thead><tr><th style="${th};text-align:center">Sr No.</th><th style="${th};text-align:left">Unit Test Name</th><th style="${th};text-align:center">Exam Date</th><th style="${th};text-align:left">Subject</th><th style="${th};text-align:left">Chapter</th><th style="${th};text-align:left">Topic</th><th style="${th}">Max. Marks</th><th style="${th}">Obtained Marks</th><th style="${th}">Percentage</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  })() : '';
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Student Profile - ${name}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+  *{box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}body{margin:0;font-family:'Inter',Arial,sans-serif;background:#fff;color:#241c4d}
+  .grade{display:inline-block;font-family:'Inter',sans-serif;font-weight:700;padding:3px 11px;border-radius:20px;font-size:13px}
+  .grade-A\\+,.grade-A{background:#d6f5e8;color:#0d7a4f}
+  .grade-B{background:#fdecc8;color:#a5690a}
+  .grade-C,.grade-D{background:#fbdbe3;color:#b8264a}
+  .tag-absent{display:inline-block;font-family:'Inter',sans-serif;font-weight:700;padding:2px 9px;border-radius:20px;font-size:11.5px;background:#fbdbe3;color:#b8264a}
+  .reportcard{background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e7e4f7;padding:0;margin:0 auto;width:100%;max-width:720px;box-shadow:0 6px 24px rgba(36,28,77,.1)}
+  .rc-head{background:linear-gradient(120deg,#4f3cc9 0%,#6a4fe0 60%,#0ea5a5 135%);color:#fff;padding:22px 28px}
+  .rc-head-top{display:flex;align-items:center;gap:14px;text-align:left}
+  .rc-head-top .rc-logo{flex-shrink:0}
+  .rc-head .school{font-family:'Fraunces',serif;font-size:23px;letter-spacing:.3px;margin:0;font-weight:600}
+  .rc-head .school-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:#e6dfff;margin:4px 0 0;line-height:1.5}
+  .rc-head h2{font-family:'Fraunces',serif;margin:14px 0 0;font-size:18px;letter-spacing:1px;font-weight:600;text-transform:uppercase;border-top:1px solid rgba(255,255,255,.25);padding-top:10px;text-align:center}
+  .rc-body{padding:22px 28px}
+  .rc-student{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px dashed #e7e4f7;padding-bottom:12px;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+  .rc-student .name{font-family:'Fraunces',serif;font-size:24px;color:#241c4d;font-weight:600}
+  .rc-student .roll{font-family:'Inter',sans-serif;font-size:14px;color:#716c94}
+  .rc-section-title{font-family:'Inter',sans-serif;font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:1px;color:#fff;background:linear-gradient(120deg,#4f3cc9,#0ea5a5);display:inline-block;padding:4px 12px;border-radius:20px;margin-bottom:12px}
+  .empty{font-family:'Inter',sans-serif;font-size:14px;color:#716c94}
+  table{border-collapse:collapse}
+  thead{display:table-header-group}
+  tbody tr{page-break-inside:avoid;break-inside:avoid}
+  @media (max-width:600px){
+    .rc-head{padding:16px 18px}
+    .rc-body{padding:16px 18px}
+    .rc-head .school{font-size:19px}
+    .rc-head h2{font-size:15px}
+    .rc-student{flex-direction:column;align-items:flex-start;gap:4px}
+    .rc-student .name{font-size:20px}
+  }
+  </style></head><body>
+  <div class="reportcard">
+    <div class="rc-head">
+      <div class="rc-head-top">
+        ${(DATA.school&&DATA.school.logo) ? `<img class="rc-logo" src="${DATA.school.logo}" style="width:56px;height:56px;object-fit:contain;border-radius:4px;background:#fff;padding:3px">` : ''}
+        <div>
+          <p class="school">${(DATA.school&&DATA.school.name)||''}</p>
+          <p class="school-sub">${(DATA.school&&DATA.school.address)||''}${(DATA.school&&DATA.school.mobile)?'<br>Mobile: '+DATA.school.mobile:''}</p>
+        </div>
+      </div>
+      <h2>Student Profile - ${chartTitle}</h2>
+    </div>
+    <div class="rc-body">
+      <div class="rc-student">
+        <div class="name">${name}</div>
+        <div class="roll">Roll No ${displayRoll}${classLine?' &nbsp;&bull;&nbsp; '+classLine:''}${grade?' &nbsp;&bull;&nbsp; Overall <span class="grade grade-'+grade+'">'+grade+'</span> ('+Math.round(overall*100)+'%)':''}</div>
+      </div>
+      <div>
+        ${subTab==='unittestwise'
+          ? (unitTestTablesHtml || '<div class="empty">No unit test data available.</div>')
+          : `<div class="rc-section-title">${chartTitle}</div>${chartImg?`<img src="${chartImg}" style="width:100%">`:'<div class="empty">No chart / data available.</div>'}`}
+      </div>
+    </div>
+  </div>
+  </body></html>`;
+}
+function printStudentProfile(){
+  if(profileSelectedRoll===null){ alert('Pehle ek student select karo.'); return; }
+  const html = buildProfilePrintDoc(profileSelectedRoll, profileSubTab);
+  const w = window.open('', '_blank');
+  if(!w){ alert('Popup blocked hai - browser settings me is site ke liye popups allow karo aur dobara try karo.'); return; }
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(()=>{ w.print(); }, 400);
+}
+
+function buildPrintDoc(rolls, month, starRoll){
+  const cards = rolls.map(roll=>{
+    const suffix = charts['pie-'+roll+'-star'] ? '-star' : (document.getElementById('bar-'+roll+'-all') ? '-all' : '');
+    const pieImg = charts['pie-'+roll+suffix] ? charts['pie-'+roll+suffix].toBase64Image() : '';
+    const barImg = charts['bar-'+roll+suffix] ? charts['bar-'+roll+suffix].toBase64Image() : '';
+    const name = studentName(roll);
+    const student = DATA.students.find(s=>s.id===roll);
+    const displayRoll = student ? student.roll : roll;
+    const classLine = student ? [student.standard, student.stream].filter(Boolean).join(' ') : '';
+    const att = attFor(roll, month);
+    const overall = overallAvg(roll, month);
+    const grade = gradeFor(overall);
+    let remark = (DATA.remarks[roll] && DATA.remarks[roll][month]) ? DATA.remarks[roll][month] : '';
+    const isStar = starRoll !== undefined && roll === starRoll;
+    
+    return `
+    <div class="reportcard ${isStar?'star-card':''}">
+      <div class="rc-head">
+        <div class="rc-head-top">
+          ${(DATA.school&&DATA.school.logo) ? `<img class="rc-logo" src="${DATA.school.logo}" style="width:56px;height:56px;object-fit:contain;border-radius:4px;background:#fff;padding:3px">` : ''}
+          <div>
+            <p class="school">${(DATA.school&&DATA.school.name)||''}</p>
+            <p class="school-sub">${(DATA.school&&DATA.school.address)||''}${(DATA.school&&DATA.school.mobile)?'<br>Mobile: '+DATA.school.mobile:''}</p>
+          </div>
+        </div>
+        <h2>Student Progress Report - ${month}</h2>
+        ${isStar ? `<p style="text-align:center;margin:8px 0 0"><span class="star-badge">🌟 Star of the Month</span></p>` : ''}
+      </div>
+      <div class="rc-body">
+        <div class="rc-student">
+          <div class="name">${name}</div>
+          <div class="roll">Roll No ${displayRoll}${classLine?' &nbsp;&bull;&nbsp; '+classLine:''} &nbsp;&bull;&nbsp; Overall <span class="grade grade-${grade}">${grade}</span></div>
+        </div>
+        <div class="rc-charts">
+          <div><div class="rc-section-title">Attendance</div>${pieImg?`<img src="${pieImg}" style="width:100%">`:'<div class="empty">No chart</div>'}</div>
+          <div><div class="rc-section-title">Subject marks</div>${barImg?`<img src="${barImg}" style="width:100%">`:'<div class="empty">No chart</div>'}</div>
+        </div>
+        <div class="stat-row">
+          <div>Attendance: <b>${att.total>0?Math.round(att.pct*100):0}%</b></div>
+          <div>Overall marks: <b>${Math.round(overall*100)}%</b></div>
+        </div>
+        ${remark?`<div class="rc-remarks">${remark}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Report Card - ${month}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+  *{box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}body{margin:0;font-family:'Inter',Arial,sans-serif;background:#fff;color:#241c4d}
+  .grade{display:inline-block;font-family:'Inter',sans-serif;font-weight:700;padding:3px 11px;border-radius:20px;font-size:13px}
+  .grade-A\\+,.grade-A{background:#d6f5e8;color:#0d7a4f}
+  .grade-B{background:#fdecc8;color:#a5690a}
+  .grade-C,.grade-D{background:#fbdbe3;color:#b8264a}
+  .reportcard{background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e7e4f7;padding:0;margin:0 auto 20px;width:100%;max-width:720px;box-shadow:0 6px 24px rgba(36,28,77,.1)}
+  .reportcard+.reportcard{page-break-before:always}
+  .rc-head{background:linear-gradient(120deg,#4f3cc9 0%,#6a4fe0 60%,#0ea5a5 135%);color:#fff;padding:22px 28px}
+  .rc-head-top{display:flex;align-items:center;gap:14px;text-align:left}
+  .rc-head-top .rc-logo{flex-shrink:0}
+  .rc-head .school{font-family:'Fraunces',serif;font-size:23px;letter-spacing:.3px;margin:0;font-weight:600}
+  .rc-head .school-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:#e6dfff;margin:4px 0 0;line-height:1.5}
+  .rc-head h2{font-family:'Fraunces',serif;margin:14px 0 0;font-size:18px;letter-spacing:1px;font-weight:600;text-transform:uppercase;border-top:1px solid rgba(255,255,255,.25);padding-top:10px;text-align:center}
+  .rc-body{padding:22px 28px}
+  .rc-student{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px dashed #e7e4f7;padding-bottom:12px;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+  .rc-student .name{font-family:'Fraunces',serif;font-size:24px;color:#241c4d;font-weight:600}
+  .rc-student .roll{font-family:'Inter',sans-serif;font-size:14px;color:#716c94}
+  .rc-section-title{font-family:'Inter',sans-serif;font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:1px;color:#fff;background:linear-gradient(120deg,#4f3cc9,#0ea5a5);display:inline-block;padding:4px 12px;border-radius:20px;margin-bottom:12px}
+  .rc-charts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:8px}
+  .stat-row{display:flex;gap:12px;font-family:'Inter',sans-serif;font-size:14px;margin:12px 0;flex-wrap:wrap}
+  .stat-row div{background:#f6f4ff;padding:8px 14px;border-radius:9px;border-left:3px solid #4f3cc9;font-weight:500}
+  .stat-row div:nth-child(1){border-left-color:#0ea5a5;background:#eafaf8}
+  .stat-row div:nth-child(2){border-left-color:#e2436b;background:#fdeef1}
+  .stat-row div:nth-child(3){border-left-color:#4f3cc9;background:#f2effc}
+  .stat-row div:nth-child(4){border-left-color:#f5a524;background:#fef6e8}
+  .stat-row b{color:#241c4d}
+  .rc-remarks{border-top:1px solid #e7e4f7;margin-top:16px;padding-top:14px;font-family:'Inter',sans-serif;font-size:14px;color:#716c94}
+  .empty{font-family:'Inter',sans-serif;font-size:14px;color:#716c94}
+  .star-card{border:2px solid #f5a524!important;box-shadow:0 10px 30px rgba(245,165,36,.3)!important}
+  .star-badge{display:inline-block;font-family:'Sora',sans-serif;font-weight:800;font-size:12px;letter-spacing:.4px;color:#5a3a00;background:linear-gradient(135deg,#ffe9b8,#ffd76a);padding:5px 14px;border-radius:20px}
+  @media (max-width:600px){
+    .rc-head{padding:16px 18px}
+    .rc-body{padding:16px 18px}
+    .rc-head .school{font-size:19px}
+    .rc-head h2{font-size:15px}
+    .rc-student{flex-direction:column;align-items:flex-start;gap:4px}
+    .rc-student .name{font-size:20px}
+    .rc-charts{grid-template-columns:1fr;gap:14px}
+    .stat-row div{flex:1 1 auto}
+  }
+  </style></head><body>${cards}</body></html>`;
+}
+
+function printReport(rolls, month, starRoll){
+  const html = buildPrintDoc(rolls, month, starRoll);
+  const w = window.open('', '_blank');
+  if(!w){ alert('Popup blocked hai - browser settings me is site ke liye popups allow karo aur dobara try karo.'); return; }
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(()=>{ w.print(); }, 400);
+}
+
+function printAllView(){
+  if(DATA.students.length===0) return '<div class="card"><div class="empty">Pehle students, marks aur attendance add karo.</div></div>';
+  const monthOpts = MONTHS.map(m=>`<option value="${m}" ${m===currentMonth?'selected':''}>${m}</option>`).join('');
+
+  const standards = [...new Set(DATA.students.map(s=>s.standard).filter(Boolean))];
+  const streams = [...new Set(DATA.students.map(s=>s.stream).filter(Boolean))];
+
+  const filteredStudents = DATA.students.filter(s=>
+    (!printAllFilterStandard || s.standard===printAllFilterStandard) &&
+    (!printAllFilterStream || s.stream===printAllFilterStream));
+
+  return `
+  <div class="printbar" style="align-items:flex-end">
+    <div class="field" style="margin-right:10px">
+        <label>Print Month</label>
+        <select onchange="currentMonth=this.value;render()">${monthOpts}</select>
+    </div>
+    <div class="field" style="margin-right:10px">
+        <label>Standard</label>
+        <select onchange="printAllFilterStandard=this.value;render()">
+          <option value="">All</option>
+          ${standards.map(st=>`<option value="${st}" ${st===printAllFilterStandard?'selected':''}>${st}</option>`).join('')}
+        </select>
+    </div>
+    <div class="field" style="margin-right:10px">
+        <label>Stream</label>
+        <select onchange="printAllFilterStream=this.value;render()">
+          <option value="">All</option>
+          ${streams.map(st=>`<option value="${st}" ${st===printAllFilterStream?'selected':''}>${st}</option>`).join('')}
+        </select>
+    </div>
+    <button class="btn" onclick="printReport([${filteredStudents.map(s=>s.id).join(',')}], '${currentMonth}')" ${filteredStudents.length===0?'disabled':''}>Print all ${currentMonth} report cards</button>
+    <span style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);align-self:center; margin-left:10px">${filteredStudents.length} report cards ready — har card apne page pe print hoga.</span>
+  </div>
+  ${filteredStudents.length ? filteredStudents.map(s=>reportCardHtml(s.id, '-all', currentMonth)).join('') : '<div class="card"><div class="empty">Is standard/stream me koi student nahi hai.</div></div>'}`;
+}
+
+function drawAllCharts(month){
+  const filteredStudents = DATA.students.filter(s=>
+    (!printAllFilterStandard || s.standard===printAllFilterStandard) &&
+    (!printAllFilterStream || s.stream===printAllFilterStream));
+  filteredStudents.forEach(s=>drawReportCharts(s.id, '-all', month));
+}
+
+let selectedTestName = '';
+let selectedTestStandard = '';
+let selectedTestStream = '';
+
+// Jab bhi koi naya test naam pehli baar use hota he, usko creation-sequence me record kar leta he,
+// taaki old-to-new order test ke naam pe guess kiye bina, actual creation order se pata chale.
+function recordTestOrder(testName){
+  if(!DATA.testOrder) DATA.testOrder = [];
+  if(!DATA.testOrder.includes(testName)) DATA.testOrder.push(testName);
+}
+// Test names ko unke actual creation order me (old to new) return karta he. Purane data (jinke liye
+// testOrder record nahi tha) ke naam list ke end me natural/numeric sort se add ho jaate hain.
+function allTestNames(){
+  const allNames = [...new Set(DATA.marks.map(m=>m.test).filter(Boolean))];
+  const tracked = (DATA.testOrder||[]).filter(n=>allNames.includes(n));
+  const untracked = allNames.filter(n=>!tracked.includes(n))
+    .sort((a,b)=>a.localeCompare(b, undefined, {numeric:true, sensitivity:'base'}));
+  return [...tracked, ...untracked];
+}
+
+// Rank ko colorful medal-style badge me dikhata he - top 3 ranks gold/silver/bronze
+function rankBadge(rank){
+  const cls = rank===1 ? 'rank-1' : rank===2 ? 'rank-2' : rank===3 ? 'rank-3' : '';
+  return `<span class="rankbadge ${cls}">${rank}</span>`;
+}
+
+// Test select hote hi standard/stream aur total marks auto-detect karta he, aur students ko total obtained marks ke hisab se rank deta he
+function unitTestSummary(testName, filteredStudents, subs){
+  const takers = filteredStudents.filter(s=>DATA.marks.some(m=>m.roll===s.id && m.test===testName));
+  const testStandards = [...new Set(takers.map(s=>s.standard).filter(Boolean))];
+  const testStreams = [...new Set(takers.map(s=>s.stream).filter(Boolean))];
+  const classLine = [testStandards.join(' / '), testStreams.join(' / ')].filter(Boolean).join(' &nbsp;&bull;&nbsp; ');
+
+  // Per-subject max marks (shown in each column header) + running total
+  const subjectMax = {};
+  subs.forEach(sub=>{
+    const rec = DATA.marks.find(m=>m.test===testName && m.subject===sub);
+    subjectMax[sub] = Number(rec ? (rec.max||0) : 0);
+  });
+  const totalMaxMarks = subs.reduce((sum, sub)=> sum + subjectMax[sub], 0);
+
+  // Common exam date across this test's records (blank if subjects were held on different dates)
+  const testDates = [...new Set(DATA.marks.filter(m=>m.test===testName).map(m=>examDateDisplay(m)))];
+  const examDate = testDates.length===1 ? testDates[0] : '';
+
+  const studentRows = filteredStudents.map(s=>{
+    let totalObt = 0, hasAny = false, anyPresent = false;
+    const marksMap = {};
+    subs.forEach(sub=>{
+      const rec = DATA.marks.find(m=>m.roll===s.id && m.test===testName && m.subject===sub);
+      if(rec){
+        hasAny = true;
+        if(rec.absent){ marksMap[sub] = 'AB'; }
+        else { totalObt += Number(rec.obtained||0); marksMap[sub] = rec.obtained; anyPresent = true; }
+      } else {
+        marksMap[sub] = '-';
+      }
+    });
+    const pct = (totalMaxMarks>0 && anyPresent) ? (totalObt/totalMaxMarks) : null;
+    return { roll: s.roll, name: s.name, totalObt, hasAny, marksMap, pct };
+  }).filter(r=>r.hasAny);
+
+  const sorted = [...studentRows].sort((a,b)=> b.totalObt - a.totalObt);
+  let rank = 0, prevScore = null;
+  const rankRows = sorted.map((r)=>{
+    if(r.totalObt !== prevScore){ rank++; prevScore = r.totalObt; }
+    const grade = r.pct!==null ? gradeFor(r.pct) : null;
+    return { ...r, rank, grade };
+  });
+
+  // Class-level stats for the summary strip
+  const scored = rankRows.filter(r=>r.pct!==null);
+  const classAvgPct = scored.length ? Math.round(scored.reduce((s,r)=>s+r.pct,0)/scored.length*100) : null;
+  const highest = scored.length ? scored.reduce((a,b)=> b.totalObt>a.totalObt?b:a) : null;
+  const lowest = scored.length ? scored.reduce((a,b)=> b.totalObt<a.totalObt?b:a) : null;
+
+  return { classLine, totalMaxMarks, subjectMax, examDate, rankRows, classAvgPct, highest, lowest, appeared: rankRows.length };
+}
+
+// ---- Shared building blocks for the Unit Test Wise result table (used by both the
+// in-app preview and the standalone print document, so both stay visually consistent) ----
+function unitTestInfoStripHtml(testName, classLine, examDate, appeared, totalMaxMarks){
+  const items = [
+    ['Unit Test', testName],
+    classLine ? ['Class', classLine.replace(/&nbsp;&bull;&nbsp;/g,' • ')] : null,
+    examDate ? ['Exam Date', examDate] : null,
+    ['Students Appeared', appeared],
+    totalMaxMarks>0 ? ['Total Marks', totalMaxMarks] : null
+  ].filter(Boolean);
+  return `<div class="ut-info-strip">${items.map(([label,val])=>`<div class="ut-info-item"><span class="ut-info-label">${label}</span><span class="ut-info-value">${val}</span></div>`).join('')}</div>`;
+}
+function unitTestSyllabusHtml(chapterTopicRows){
+  if(!chapterTopicRows.length) return '';
+  return `<div class="ut-syllabus"><div class="ut-syllabus-title">Syllabus Covered</div><div class="table-wrap"><table><tr><th>Subject</th><th>Chapter</th><th>Topic</th></tr>${chapterTopicRows.map(r=>`<tr><td>${r.sub}</td><td>${r.chapter||'—'}</td><td>${r.topic||'—'}</td></tr>`).join('')}</table></div></div>`;
+}
+function unitTestTableHead(subs, subjectMax, totalMaxMarks){
+  const subHeads = subs.map(s=>`<th style="text-align:center">${s}<span class="sub-max">/${subjectMax[s]||0}</span></th>`).join('');
+  return `<tr><th style="text-align:center">Rank</th><th style="text-align:center">Roll</th><th style="text-align:left">Student Name</th>${subHeads}</tr>`;
+}
+function unitTestTableRows(subs, rankRows){
+  return rankRows.map(r=>{
+    const cells = subs.map(sub=> `<td style="text-align:center">${r.marksMap[sub]==='AB' ? `<span class="tag-absent">AB</span>` : r.marksMap[sub]}</td>`).join('');
+    return `<tr><td style="text-align:center">${rankBadge(r.rank)}</td><td style="text-align:center">${r.roll}</td><td>${r.name}</td>${cells}</tr>`;
+  }).join('');
+}
+
+function unitTestView(){
+  if(DATA.students.length===0 || DATA.marks.length===0) return '<div class="card"><div class="empty">Pehle students aur marks add karo.</div></div>';
+  const names = allTestNames();
+  if(names.length===0) return '<div class="card"><div class="empty">Abhi tak koi test record nahi mila. Marks add karte waqt test name (e.g. Unit Test 1) bharo.</div></div>';
+  if(!selectedTestName || !names.includes(selectedTestName)) selectedTestName = names[0];
+
+  const standards = [...new Set(DATA.students.map(s=>s.standard).filter(Boolean))];
+  const streams = [...new Set(DATA.students.map(s=>s.stream).filter(Boolean))];
+
+  const filteredStudents = DATA.students.filter(s=>
+    (!selectedTestStandard || s.standard===selectedTestStandard) &&
+    (!selectedTestStream || s.stream===selectedTestStream));
+
+  const subs = [...new Set(DATA.marks.filter(m=>m.test===selectedTestName).map(m=>m.subject))];
+
+  const { classLine, totalMaxMarks, subjectMax, examDate, rankRows, classAvgPct, highest, lowest, appeared } = unitTestSummary(selectedTestName, filteredStudents, subs);
+
+  const chapterTopicRows = subs.map(sub=>{
+    const rec = DATA.marks.find(m=>m.test===selectedTestName && m.subject===sub && (m.chapter || m.topic));
+    return { sub, chapter: rec?rec.chapter:'', topic: rec?rec.topic:'' };
+  }).filter(r=>r.chapter || r.topic);
+
+  return `
+  <div class="printbar no-print" style="align-items:flex-end">
+    <div class="field" style="margin-right:10px">
+        <label>Unit Test name</label>
+        <select onchange="selectedTestName=this.value;render()">
+          ${names.map(n=>`<option value="${n}" ${n===selectedTestName?'selected':''}>${n}</option>`).join('')}
+        </select>
+    </div>
+    <div class="field" style="margin-right:10px">
+        <label>Standard</label>
+        <select onchange="selectedTestStandard=this.value;render()">
+          <option value="">All</option>
+          ${standards.map(st=>`<option value="${st}" ${st===selectedTestStandard?'selected':''}>${st}</option>`).join('')}
+        </select>
+    </div>
+    <div class="field" style="margin-right:10px">
+        <label>Stream</label>
+        <select onchange="selectedTestStream=this.value;render()">
+          <option value="">All</option>
+          ${streams.map(st=>`<option value="${st}" ${st===selectedTestStream?'selected':''}>${st}</option>`).join('')}
+        </select>
+    </div>
+    <button class="btn" onclick="printUnitTestReport()">Print this test report</button>
+  </div>
+  <div class="reportcard" style="max-width:960px">
+    <div class="rc-head">
+      <div class="rc-head-top">
+        ${(DATA.school&&DATA.school.logo) ? `<img class="rc-logo" src="${DATA.school.logo}" style="width:56px;height:56px;object-fit:contain;border-radius:4px;background:#fff;padding:3px">` : ''}
+        <div>
+          <p class="school">${(DATA.school&&DATA.school.name)||''}</p>
+          <p class="school-sub">${(DATA.school&&DATA.school.address)||''}${(DATA.school&&DATA.school.mobile)?'<br>Mobile: '+DATA.school.mobile:''}</p>
+        </div>
+      </div>
+      <h2>Unit Test Result</h2>
+    </div>
+    <div class="rc-body">
+      ${unitTestInfoStripHtml(selectedTestName, classLine, examDate, appeared, totalMaxMarks)}
+      ${unitTestSyllabusHtml(chapterTopicRows)}
+      ${subs.length && rankRows.length
+        ? `<div class="table-wrap"><table class="ut-table"><thead>${unitTestTableHead(subs, subjectMax, totalMaxMarks)}</thead><tbody>${unitTestTableRows(subs, rankRows)}</tbody></table></div>`
+        : '<div class="empty">Is filter/test ke koi marks nahi mile.</div>'}
+    </div>
+  </div>`;
+}
+
+function buildUnitTestPrintDoc(testName){
+  const filteredStudents = DATA.students.filter(s=>
+    (!selectedTestStandard || s.standard===selectedTestStandard) &&
+    (!selectedTestStream || s.stream===selectedTestStream));
+  const subs = [...new Set(DATA.marks.filter(m=>m.test===testName).map(m=>m.subject))];
+
+  const { classLine, totalMaxMarks, subjectMax, examDate, rankRows, classAvgPct, highest, lowest, appeared } = unitTestSummary(testName, filteredStudents, subs);
+
+  const chapterTopicRows = subs.map(sub=>{
+    const rec = DATA.marks.find(m=>m.test===testName && m.subject===sub && (m.chapter || m.topic));
+    return { sub, chapter: rec?rec.chapter:'', topic: rec?rec.topic:'' };
+  }).filter(r=>r.chapter || r.topic);
+
+  const logoImg = (DATA.school&&DATA.school.logo) ? `<img class="rc-logo" src="${DATA.school.logo}" style="width:56px;height:56px;object-fit:contain;border-radius:4px;background:#fff;padding:3px">` : '';
+  const infoStrip = unitTestInfoStripHtml(testName, classLine, examDate, appeared, totalMaxMarks);
+  const syllabusHtml = unitTestSyllabusHtml(chapterTopicRows);
+  const tableHead = unitTestTableHead(subs, subjectMax, totalMaxMarks);
+  const tableRows = unitTestTableRows(subs, rankRows);
+
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${testName} - Result</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+  *{box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
+  body{margin:0;font-family:'Inter',Arial,sans-serif;background:#f3f2fb;color:#241c4d}
+  .sheet{max-width:960px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e7e4f7;box-shadow:0 10px 32px rgba(36,28,77,.12)}
+  .rc-head{background:linear-gradient(120deg,#4f3cc9 0%,#6a4fe0 60%,#0ea5a5 135%);color:#fff;padding:22px 28px}
+  .rc-head-top{display:flex;align-items:center;gap:14px;text-align:left}
+  .rc-head-top .rc-logo{flex-shrink:0}
+  .rc-head .school{font-family:'Fraunces',serif;font-size:23px;letter-spacing:.3px;margin:0;font-weight:600}
+  .rc-head .school-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:#e6dfff;margin:4px 0 0;line-height:1.5}
+  .rc-head h2{font-family:'Fraunces',serif;margin:14px 0 0;font-size:18px;letter-spacing:1px;font-weight:600;text-transform:uppercase;border-top:1px solid rgba(255,255,255,.25);padding-top:10px;text-align:center}
+  main{padding:22px 28px}
+  table{width:100%;border-collapse:collapse;font-family:'Inter',sans-serif;font-size:14px}
+  th{text-align:left;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#4f3cc9;background:#f6f4ff;border-bottom:2px solid #e7e4f7;padding:9px 8px;white-space:nowrap}
+  td{padding:8px;border-bottom:1px solid #e7e4f7}
+  tbody tr:nth-child(even) td{background:#faf9ff}
+  thead{display:table-header-group}
+  tbody tr{page-break-inside:avoid;break-inside:avoid}
+  .ut-table td:nth-child(3){text-align:left;font-weight:600}
+  .rankbadge{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 6px;border-radius:50%;font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px;background:#efecfb;color:#4f3cc9}
+  .rankbadge.rank-1{background:linear-gradient(135deg,#ffd76a,#f5a524);color:#5a3a00}
+  .rankbadge.rank-2{background:linear-gradient(135deg,#e6eaf0,#b9c0cc);color:#3c4351}
+  .rankbadge.rank-3{background:linear-gradient(135deg,#eabd94,#c8814a);color:#4a2a0c}
+  .tag-absent{display:inline-block;font-family:'Inter',sans-serif;font-weight:700;padding:2px 9px;border-radius:20px;font-size:11.5px;background:#fbdbe3;color:#b8264a}
+  .table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .table-wrap table{min-width:480px}
+  .sub-max{display:block;font-weight:500;font-size:10px;opacity:.75;text-transform:none;letter-spacing:0;margin-top:1px}
+  .ut-info-strip{display:flex;flex-wrap:wrap;gap:10px;margin:2px 0 18px}
+  .ut-info-item{flex:1 1 130px;background:#f6f4ff;border-left:3px solid #4f3cc9;border-radius:8px;padding:8px 12px}
+  .ut-info-label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#716c94;font-weight:600;margin-bottom:2px}
+  .ut-info-value{display:block;font-size:14px;font-weight:700;color:#241c4d}
+  .ut-syllabus{margin-bottom:18px}
+  .ut-syllabus-title{display:inline-block;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#4f3cc9;background:#f1eefc;padding:4px 12px;border-radius:20px;margin-bottom:8px}
+  .empty{color:#716c94;font-size:14px;padding:16px 0;text-align:center}
+  @page{margin:14mm}
+  @media print{ body{background:#fff} .sheet{box-shadow:none;border:none;border-radius:0} }
+  @media (max-width:600px){
+    .rc-head{padding:16px 18px}
+    main{padding:14px 16px}
+    .rc-head .school{font-size:19px}
+    .rc-head h2{font-size:15px}
+    table{font-size:12.5px}
+    th,td{padding:6px}
+  }
+  </style></head><body>
+  <div class="sheet">
+  <div class="rc-head">
+    <div class="rc-head-top">
+      ${logoImg}
+      <div>
+        <p class="school">${(DATA.school&&DATA.school.name)||''}</p>
+        <p class="school-sub">${(DATA.school&&DATA.school.address)||''}${(DATA.school&&DATA.school.mobile)?'<br>Mobile: '+DATA.school.mobile:''}</p>
+      </div>
+    </div>
+    <h2>Unit Test Result</h2>
+  </div>
+  <main>
+    ${infoStrip}
+    ${syllabusHtml}
+    ${subs.length && rankRows.length
+      ? `<div class="table-wrap"><table class="ut-table"><thead>${tableHead}</thead><tbody>${tableRows}</tbody></table></div>`
+      : '<div class="empty">Is filter/test ke koi marks nahi mile.</div>'}
+  </main>
+  </div>
+  </body></html>`;
+}
+
+function printUnitTestReport(){
+  const html = buildUnitTestPrintDoc(selectedTestName);
+  const w = window.open('', '_blank');
+  if(!w){ alert('Popup blocked hai - browser settings me is site ke liye popups allow karo aur dobara try karo.'); return; }
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(()=>{ w.print(); }, 400);
+}
+
+function showAuthScreen(){
+  document.getElementById('authLoading').style.display='none';
+  document.getElementById('appRoot').style.display='none';
+  document.getElementById('authScreen').style.display='flex';
+}
+function showApp(){
+  document.getElementById('authLoading').style.display='none';
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('appRoot').style.display='block';
+  document.getElementById('userChip').textContent = currentUser ? currentUser.email : '';
+}
+function toggleAuthMode(){
+  authMode = authMode==='login' ? 'signup' : 'login';
+  document.getElementById('authTitle').textContent = authMode==='login' ? 'Login' : 'Sign up';
+  document.getElementById('authSub').textContent = authMode==='login'
+    ? 'Apne account se login karo — data har device par sync rahega.'
+    : 'Naya account banao — is email/password se kisi bhi device par login kar sakte ho.';
+  document.getElementById('authSubmitBtn').textContent = authMode==='login' ? 'Login' : 'Sign up';
+  document.getElementById('authToggle').innerHTML = authMode==='login'
+    ? 'Naya account banana hai? <a onclick="toggleAuthMode()">Sign up</a>'
+    : 'Pehle se account hai? <a onclick="toggleAuthMode()">Login</a>';
+  document.getElementById('authErr').style.display='none';
+}
+async function submitAuth(){
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errBox = document.getElementById('authErr');
+  errBox.style.display='none';
+  if(!email || !password){
+    errBox.textContent = 'Email aur password dono bharo.';
+    errBox.style.display='block';
+    return;
+  }
+  try{
+    if(authMode==='login'){
+      await auth.signInWithEmailAndPassword(email, password);
+    } else {
+      await auth.createUserWithEmailAndPassword(email, password);
+    }
+  }catch(e){
+    errBox.textContent = e.message;
+    errBox.style.display='block';
+  }
+}
+function logoutUser(){
+  if(!confirm('Logout karna hai?')) return;
+  auth.signOut();
+}
+
+auth.onAuthStateChanged(async (user)=>{
+  document.getElementById('authLoading').style.display='block';
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('appRoot').style.display='none';
+  currentUser = user;
+  if(user){
+    DATA = { students: [], marks: [], attendance: {}, workingDays: {}, dailyAttendance: {}, remarks: {}, subjects: [], school: { name:'', address:'', mobile:'', logo:'' } };
+    await loadData();
+    showApp();
+    render();
+  } else {
+    showAuthScreen();
+  }
+});
+</script>
+</body>
+</html>
